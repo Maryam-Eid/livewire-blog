@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Category;
+use App\Models\Tag;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use App\Models\Post;
@@ -27,6 +29,13 @@ new class extends Component {
 
     public string $existing_image = '';
 
+
+    #[Validate('required|array|min:1')]
+    public array $selectedCategories = [];
+
+    #[Validate('nullable|array')]
+    public array $selectedTags = [];
+
     public function mount(Post $post): void
     {
         if (!auth()->user()->can('edit-any-post') &&
@@ -40,6 +49,17 @@ new class extends Component {
         $this->content = $post->content;
         $this->status = $post->status;
         $this->existing_image = $post->featured_image ?? '';
+
+        $this->selectedCategories = $post->categories->pluck('id')->toArray();
+        $this->selectedTags = $post->tags->pluck('id')->toArray();
+    }
+
+    public function with(): array
+    {
+        return [
+            'categories' => Category::all(),
+            'tags' => Tag::all(),
+        ];
     }
 
     public function update(): void
@@ -67,6 +87,9 @@ new class extends Component {
         }
 
         $this->post->save();
+
+        $this->post->categories()->sync($this->selectedCategories);
+        $this->post->tags()->sync($this->selectedTags);
 
         session()->flash('success', 'Post updated successfully!');
 
@@ -145,131 +168,185 @@ new class extends Component {
             </div>
             @error('content')
             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-        @enderror
+            @enderror
 
-    <!-- Featured Image -->
-    <div>
-        <label class="block text-sm font-medium text-gray-700">
-            Featured Image
-        </label>
+            <!-- Featured Image -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700">
+                    Featured Image
+                </label>
 
-        @if ($existing_image && !$featured_image)
-            <div class="mt-2 mb-3">
-                <p class="text-sm text-gray-600 mb-1">Current image:</p>
-                <img src="{{ Storage::url($existing_image) }}" class="h-32 w-auto rounded border border-gray-300"
-                     alt="Current image">
-            </div>
-        @endif
+                @if ($existing_image && !$featured_image)
+                    <div class="mt-2 mb-3">
+                        <p class="text-sm text-gray-600 mb-1">Current image:</p>
+                        <img src="{{ Storage::url($existing_image) }}"
+                             class="h-32 w-auto rounded border border-gray-300"
+                             alt="Current image">
+                    </div>
+                @endif
 
-        <input
-            type="file"
-            wire:model="featured_image"
-            accept="image/*"
-            class="mt-1 block w-full text-sm text-gray-500
+                <input
+                    type="file"
+                    wire:model="featured_image"
+                    accept="image/*"
+                    class="mt-1 block w-full text-sm text-gray-500
                         file:mr-4 file:py-2 file:px-4
                         file:rounded-md file:border-0
                         file:text-sm file:font-semibold
                         file:bg-indigo-50 file:text-indigo-700
                         hover:file:bg-indigo-100"
-        />
-        @error('featured_image')
-        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-        @enderror
-
-        @if ($featured_image)
-            <div class="mt-3" wire:transition>
-                <p class="text-sm text-gray-600 mb-1">New image:</p>
-                <img src="{{ $featured_image->temporaryUrl() }}" class="h-32 w-auto rounded border border-gray-300"
-                     alt="Preview">
-            </div>
-        @endif
-
-        <div wire:loading wire:target="featured_image" class="mt-2 text-sm text-gray-500">
-            Uploading...
-        </div>
-    </div>
-
-    <!-- Status -->
-    <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
-            Status
-        </label>
-
-        <div class="space-y-2">
-            <label class="flex items-start">
-                <input
-                    type="radio"
-                    wire:model="status"
-                    value="draft"
-                    class="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
                 />
-                <div class="ml-3">
+                @error('featured_image')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+
+                @if ($featured_image)
+                    <div class="mt-3" wire:transition>
+                        <p class="text-sm text-gray-600 mb-1">New image:</p>
+                        <img src="{{ $featured_image->temporaryUrl() }}"
+                             class="h-32 w-auto rounded border border-gray-300"
+                             alt="Preview">
+                    </div>
+                @endif
+
+                <div wire:loading wire:target="featured_image" class="mt-2 text-sm text-gray-500">
+                    Uploading...
+                </div>
+            </div>
+
+            <!-- Categories -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Categories (Required)
+                </label>
+                <div class="space-y-2 max-h-48 overflow-y-auto border border-gray-300 rounded-md p-3">
+                    @foreach($categories as $category)
+                        <label class="flex items-center">
+                            <input
+                                type="checkbox"
+                                wire:model="selectedCategories"
+                                value="{{ $category->id }}"
+                                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                            />
+                            <span class="ml-3 flex items-center">
+                                <span
+                                    class="inline-block w-3 h-3 rounded-full mr-2"
+                                    style="background-color: {{ $category->color }}"
+                                ></span>
+                                <span class="text-sm font-medium text-gray-700">{{ $category->name }}</span>
+                            </span>
+                        </label>
+                    @endforeach
+                </div>
+                @error('selectedCategories')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <!-- Tags -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Tags (Optional)
+                </label>
+                <div class="space-y-2 max-h-48 overflow-y-auto border border-gray-300 rounded-md p-3">
+                    @foreach($tags as $tag)
+                        <label class="flex items-center">
+                            <input
+                                type="checkbox"
+                                wire:model="selectedTags"
+                                value="{{ $tag->id }}"
+                                class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                            />
+                            <span class="ml-3 text-sm font-medium text-gray-700">{{ $tag->name }}</span>
+                        </label>
+                    @endforeach
+                </div>
+                @error('selectedTags')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <!-- Status -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Status
+                </label>
+
+                <div class="space-y-2">
+                    <label class="flex items-start">
+                        <input
+                            type="radio"
+                            wire:model="status"
+                            value="draft"
+                            class="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                        />
+                        <div class="ml-3">
                 <span class="block text-sm font-medium text-gray-700">
                     Draft
                 </span>
-                    <span class="block text-sm text-gray-500">
+                            <span class="block text-sm text-gray-500">
                     Save as draft, not visible to readers
                 </span>
-                </div>
-            </label>
+                        </div>
+                    </label>
 
-            @can('publish-post')
-                <label class="flex items-start">
-                    <input
-                        type="radio"
-                        wire:model="status"
-                        value="published"
-                        class="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
-                    />
-                    <div class="ml-3">
+                    @can('publish-post')
+                        <label class="flex items-start">
+                            <input
+                                type="radio"
+                                wire:model="status"
+                                value="published"
+                                class="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                            />
+                            <div class="ml-3">
                     <span class="block text-sm font-medium text-gray-700">
                         Published
                     </span>
-                        <span class="block text-sm text-gray-500">
+                                <span class="block text-sm text-gray-500">
                         Publish immediately, visible to all readers
                     </span>
-                    </div>
-                </label>
+                            </div>
+                        </label>
 
-                <label class="flex items-start">
-                    <input
-                        type="radio"
-                        wire:model="status"
-                        value="archived"
-                        class="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
-                    />
-                    <div class="ml-3">
+                        <label class="flex items-start">
+                            <input
+                                type="radio"
+                                wire:model="status"
+                                value="archived"
+                                class="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                            />
+                            <div class="ml-3">
                     <span class="block text-sm font-medium text-gray-700">
                         Archived
                     </span>
-                        <span class="block text-sm text-gray-500">
+                                <span class="block text-sm text-gray-500">
                         Hide this post from readers while keeping it saved
                     </span>
-                    </div>
-                </label>
-            @endcan
-        </div>
+                            </div>
+                        </label>
+                    @endcan
+                </div>
 
-        @error('status')
-        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-        @enderror
-    </div>
+                @error('status')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
 
-    <!-- Actions -->
-    <div class="flex gap-3">
-        <button
-            type="submit"
-            class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
-        >
-            Update Post
-        </button>
-        <a
-            href="{{ route('posts.index') }}"
-            class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
-        >
-            Cancel
-        </a>
+            <!-- Actions -->
+            <div class="flex gap-3">
+                <button
+                    type="submit"
+                    class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                >
+                    Update Post
+                </button>
+                <a
+                    href="{{ route('posts.index') }}"
+                    class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                >
+                    Cancel
+                </a>
+            </div>
+        </form>
     </div>
-    </form>
-</div>
 </div>

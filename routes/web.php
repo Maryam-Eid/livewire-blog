@@ -13,6 +13,7 @@ Route::get('/blog', PostList::class)->name('blog.index');
 Route::livewire('/blog/{slug}', 'pages::posts.show')->name('blog.show');
 
 Route::middleware('auth')->group(function () {
+    // Posts
     Route::livewire('/posts', 'pages::posts.index')
         ->middleware('can:create-post')
         ->name('posts.index');
@@ -25,6 +26,7 @@ Route::middleware('auth')->group(function () {
         ->middleware('can:create-post')
         ->name('posts.edit');
 
+    // Users
     Route::livewire('/users', 'pages::users.index')
         ->middleware('can:manage-users')
         ->name('users.index');
@@ -36,6 +38,32 @@ Route::middleware('auth')->group(function () {
     Route::livewire('/users/{user}/edit', 'pages::users.edit')
         ->middleware('can:manage-users')
         ->name('users.edit');
+
+    // Categories
+    Route::livewire('/categories', 'pages::categories.index')
+        ->middleware('can:manage-roles')
+        ->name('categories.index');
+
+    Route::livewire('/categories/create', 'pages::categories.create')
+        ->middleware('can:manage-roles')
+        ->name('categories.create');
+
+    Route::livewire('/categories/{category}/edit', 'pages::categories.edit')
+        ->middleware('can:manage-roles')
+        ->name('categories.edit');
+
+    // Tags
+    Route::livewire('/tags', 'pages::tags.index')
+        ->middleware('can:manage-roles')
+        ->name('tags.index');
+
+    Route::livewire('/tags/create', 'pages::tags.create')
+        ->middleware('can:manage-roles')
+        ->name('tags.create');
+
+    Route::livewire('/tags/{category}/edit', 'pages::tags.edit')
+        ->middleware('can:manage-roles')
+        ->name('tags.edit');
 });
 
 require __DIR__ . '/settings.php';

@@ -12,7 +12,7 @@ new class extends Component {
 
     public function with(): array
     {
-        $query = Post::with('user')->latest();
+        $query = Post::with(['user','categories','tags'])->latest();
 
         if ($this->search) {
             $query->where('title', 'like', '%' . $this->search . '$')
@@ -110,6 +110,9 @@ new class extends Component {
                         Title
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Categories
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Author
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -129,6 +132,20 @@ new class extends Component {
                         <td class="px-6 py-4">
                             <div class="text-sm font-medium text-gray-900">{{ $post->title }}</div>
                             <div class="text-sm text-gray-500">{{ Str::limit($post->excerpt, 50) }}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex flex-wrap gap-1">
+                                @forelse($post->categories as $category)
+                                    <span
+                                        class="px-2 py-1 text-xs font-semibold rounded-full text-white"
+                                        style="background-color: {{ $category->color }}"
+                                    >
+                                            {{ $category->name }}
+                                        </span>
+                                @empty
+                                    <span class="text-sm text-gray-400">No category</span>
+                                @endforelse
+                            </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-900">{{ $post->user->name }}</div>
@@ -169,7 +186,7 @@ new class extends Component {
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-12 text-center text-gray-400">
+                        <td colspan="6" class="px-6 py-12 text-center text-gray-400">
                             No post found.
                         </td>
                     </tr>
