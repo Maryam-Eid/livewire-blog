@@ -12,7 +12,9 @@ new class extends Component {
 
     public function with(): array
     {
-        $query = Post::with(['user','categories','tags'])->latest();
+        $query = Post::with(['user','categories','tags'])
+            ->withCount('comments')
+            ->latest();
 
         if ($this->search) {
             $query->where('title', 'like', '%' . $this->search . '$')
@@ -132,6 +134,16 @@ new class extends Component {
                         <td class="px-6 py-4">
                             <div class="text-sm font-medium text-gray-900">{{ $post->title }}</div>
                             <div class="text-sm text-gray-500">{{ Str::limit($post->excerpt, 50) }}</div>
+                            @if($post->comments_count > 0)
+                                <div class="mt-1">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                            <svg class="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            {{ $post->comments_count }} {{ Str::plural('comment', $post->comments_count) }}
+                                        </span>
+                                </div>
+                            @endif
                         </td>
                         <td class="px-6 py-4">
                             <div class="flex flex-wrap gap-1">

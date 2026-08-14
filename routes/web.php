@@ -64,6 +64,11 @@ Route::middleware('auth')->group(function () {
     Route::livewire('/tags/{category}/edit', 'pages::tags.edit')
         ->middleware('can:manage-roles')
         ->name('tags.edit');
+
+    // comments
+    Route::livewire('/comments', 'pages::comments.index')
+        ->middleware('can:create-post')
+        ->name('comments.index');
 });
 
 require __DIR__ . '/settings.php';
