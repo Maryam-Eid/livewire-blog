@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
-#[Fillable(['user_id', 'title', 'slug', 'excerpt', 'content', 'featured_image', 'status', 'published_at'])]
+#[Fillable(['user_id', 'title', 'slug', 'excerpt', 'content', 'featured_image', 'status', 'published_at', 'views_count'])]
 class Post extends Model
 {
     protected $casts = [
@@ -34,6 +34,11 @@ class Post extends Model
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
+    }
+
+    public function views(): HasMany
+    {
+        return $this->hasMany(PostView::class);
     }
 
     // Create slug

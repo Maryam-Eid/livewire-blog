@@ -13,7 +13,7 @@
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
                     <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search posts..."
-                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"/>
                 </div>
 
                 <!-- Categories -->
@@ -77,7 +77,8 @@
                                 <a href="{{ route('blog.show', $post->slug) }}" wire:navigate>
                                     <div
                                         class="w-full h-48 bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                                        <span class="text-4xl text-white font-bold">{{ substr($post->title, 0, 1) }}</span>
+                                        <span
+                                            class="text-4xl text-white font-bold">{{ substr($post->title, 0, 1) }}</span>
                                     </div>
                                 </a>
                             @endif
@@ -87,10 +88,15 @@
                                     <span>{{ $post->published_at->format('M d, Y') }}</span>
                                     <span class="mx-2">•</span>
                                     <span>{{ $post->user->name }}</span>
+                                    @if ($post->views_count > 0)
+                                        <span>•</span>
+                                        <span>{{ number_format($post->views_count) }} {{ Str::plural('view', $post->views_count) }}</span>
+                                    @endif
                                 </div>
 
                                 <h2 class="text-xl font-bold text-gray-900 mb-2">
-                                    <a href="{{ route('blog.show', $post->slug) }}" wire:navigate class="hover:text-indigo-600">
+                                    <a href="{{ route('blog.show', $post->slug) }}" wire:navigate
+                                       class="hover:text-indigo-600">
                                         {{ $post->title }}
                                     </a>
                                 </h2>

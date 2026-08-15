@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\PostView;
 use Livewire\Component;
 use App\Models\Post;
 use Livewire\Attributes\Layout;
@@ -14,6 +15,21 @@ class extends Component {
             ->where('status', 'published')
             ->with(['user', 'categories', 'tags'])
             ->firstOrFail();
+
+        $this->trackView();
+    }
+
+    protected function trackView()
+    {
+        $this->post->increment('views_count');
+
+        PostView::create([
+            'post_id' => $this->post->id,
+            'user_id' => auth()->id(),
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'viewed_at' => now(),
+        ]);
     }
 };
 ?>
@@ -47,7 +63,8 @@ class extends Component {
                 <div>
                     <p class="font-medium text-gray-900">{{ $post->user->name }}</p>
                     <p class="text-sm">{{ $post->published_at->format('F d, Y') }}
-                        • {{ ceil(str_word_count(strip_tags($post->content)) / 200) }} min read</p>
+                        • {{ ceil(str_word_count(strip_tags($post->content)) / 200) }} min read
+                        • {{ number_format($post->views_count) }} views</p>
                 </div>
             </div>
 
