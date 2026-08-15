@@ -1,13 +1,168 @@
 <?php
 
+use App\Models\Category;
+use Livewire\Attributes\Url;
 use Livewire\Component;
+use Livewire\WithPagination;
 
-new class extends Component
-{
-    //
+new class extends Component {
+    use WithPagination;
+
+    #[Url(as: 'q')]
+    public string $search = '';
+
+    public function with(): array
+    {
+        return [
+            'categories' => Category::query()
+                ->withCount('posts')
+                ->when($this->search, function ($query) {
+                    $query->where(function ($query) {
+                        $query->where('name', 'like', '%' . $this->search . '%')
+                            ->orWhere('description', 'like', '%' . $this->search . '%');
+                    });
+                })
+                ->latest()
+                ->paginate(10),
+        ];
+    }
+
+    public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function deleteCategory(Category $category): void
+    {
+        $category->posts()->detach();
+        $category->delete();
+
+        session()->flash('success', 'Category deleted successfully!');
+    }
 };
 ?>
 
 <div>
-    {{-- It is quality rather than quantity that matters. - Lucius Annaeus Seneca --}}
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">Categories</h1>
+        <p class="mt-1 text-sm text-gray-600">Manage post categories.</p>
+    </div>
+
+    <div class="mb-6 rounded-lg border border-gray-200 bg-white p-4">
+        <div class="flex flex-col gap-4 sm:flex-row">
+            <input
+                type="text"
+                wire:model.live.debounce.300ms="search"
+                placeholder="Search categories..."
+                class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            />
+
+            <a
+                href="{{ route('categories.create') }}"
+                wire:navigate
+                class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150"
+            >
+
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                New Category
+            </a>
+        </div>
+    </div>
+
+    @if (session('success'))
+        <div class="mb-6 rounded-lg border border-green-200 bg-green-50 p-4" wire:transition>
+            <p class="text-sm text-green-800">{{ session('success') }}</p>
+        </div>
+    @endif
+
+    <div class="overflow-hidden rounded-lg border border-gray-200 bg-white">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                        Category
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                        #Posts
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                        Created
+                    </th>
+                    <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                        Actions
+                    </th>
+                </tr>
+                </thead>
+
+                <tbody class="divide-y divide-gray-200 bg-white">
+                @forelse ($categories as $category)
+                    <tr wire:key="category-{{ $category->id }}" class="hover:bg-gray-50">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                    <span
+                                        class="h-4 w-4 rounded-full"
+                                        style="background-color: {{ $category->color }}"
+                                    ></span>
+
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">
+                                        {{ $category->name }}
+                                    </p>
+
+                                    @if ($category->description)
+                                        <p class="mt-1 text-sm text-gray-500">
+                                            {{ Str::limit($category->description, 80) }}
+                                        </p>
+                                    @endif
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="px-6 py-4 text-sm text-gray-600">
+                            {{ $category->posts_count }}
+                            {{ Str::plural('post', $category->posts_count) }}
+                        </td>
+
+                        <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                            {{ $category->created_at->format('M d, Y') }}
+                        </td>
+
+                        <td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                            <div class="flex justify-end gap-3">
+                                <a
+                                    href="{{ route('categories.edit', $category) }}"
+                                    wire:navigate
+                                    class="text-indigo-600 hover:text-indigo-900"
+                                >
+                                    Edit
+                                </a>
+
+                                <button
+                                    wire:click="deleteCategory({{ $category->id }})"
+                                    wire:confirm="Delete this category? It will be removed from its posts."
+                                    class="text-red-600 hover:text-red-900"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="4" class="px-6 py-12 text-center text-sm text-gray-400">
+                            No categories found.
+                        </td>
+                    </tr>
+                @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-6">
+        {{ $categories->links() }}
+    </div>
 </div>

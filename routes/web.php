@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\PostList;
+use App\Models\Subscriber;
 use Illuminate\Support\Facades\Route;
 
 // Dashboard
@@ -10,7 +11,7 @@ Route::livewire('dashboard', 'pages::dashboard')
 
 // Unsubscribe
 Route::get('/unsubscribe/{token}', function ($token) {
-    $subscriber = \App\Models\Subscriber::where('token', $token)->firstOrFail();
+    $subscriber = Subscriber::where('token', $token)->firstOrFail();
     if ($subscriber) {
         $subscriber->delete();
         return view('unsubscribed');
@@ -73,7 +74,7 @@ Route::middleware('auth')->group(function () {
         ->middleware('can:manage-roles')
         ->name('tags.create');
 
-    Route::livewire('/tags/{category}/edit', 'pages::tags.edit')
+    Route::livewire('/tags/{tag}/edit', 'pages::tags.edit')
         ->middleware('can:manage-roles')
         ->name('tags.edit');
 

@@ -29,7 +29,6 @@ new class extends Component {
 
     public string $existing_image = '';
 
-
     #[Validate('required|array|min:1')]
     public array $selectedCategories = [];
 
