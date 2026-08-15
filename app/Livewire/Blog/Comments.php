@@ -4,6 +4,7 @@ namespace App\Livewire\Blog;
 
 use App\Models\Comment;
 use App\Models\Post;
+use App\Notifications\NewCommentNotification;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
@@ -31,7 +32,7 @@ class Comments extends Component
 
         $this->validate(['newComment' => 'required|string|min:3|max:1000']);
 
-        Comment::create([
+        $comment = Comment::create([
             'post_id' => $this->post->id,
             'user_id' => auth()->id(),
             'content' => $this->newComment,
@@ -39,6 +40,11 @@ class Comments extends Component
         ]);
 
         $this->newComment = '';
+
+        if ($this->post->user_id !== auth()->id()) {
+            $this->post->user->notify(new NewCommentNotification($comment));
+        }
+
 
         $this->dispatch('comment-posted');
 
@@ -69,13 +75,17 @@ class Comments extends Component
 
         $this->validate(['replyContent' => 'required|string|min:3|max:1000']);
 
-        Comment::create([
+        $comment = Comment::create([
             'post_id' => $this->post->id,
             'user_id' => auth()->id(),
             'parent_id' => $parentId,
             'content' => $this->replyContent,
             'status' => 'approved',
         ]);
+
+        if ($this->post->user_id !== auth()->id()) {
+            $this->post->user->notify(new NewCommentNotification($comment));
+        }
 
         $this->replyingTo = null;
         $this->replyContent = '';

@@ -31,12 +31,12 @@
     </div>
 </nav>
 
-<main class="py-10">
+<main class="pt-10">
     {{ $slot }}
 </main>
 
-<footer class="bg-white border-t border-gray-200 mt-20">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<footer class="bg-white border-t border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <p class="text-center text-sm text-gray-500">
             &copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.
         </p>

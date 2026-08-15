@@ -8,6 +8,17 @@ Route::livewire('dashboard', 'pages::dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+// Unsubscribe
+Route::get('/unsubscribe/{token}', function ($token) {
+    $subscriber = \App\Models\Subscriber::where('token', $token)->firstOrFail();
+    if ($subscriber) {
+        $subscriber->delete();
+        return view('unsubscribed');
+    }
+
+    abort(404);
+})->name('unsubscribe');
+
 // Blog
 Route::get('/', fn() => redirect('/blog'))->name('home');
 Route::get('/blog', PostList::class)->name('blog.index');

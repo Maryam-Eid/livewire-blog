@@ -127,4 +127,9 @@
             {{ $posts->links() }}
         </div>
     </div>
+
+    <!-- Subscribe Section -->
+    <div class="mt-20">
+        <livewire:blog.subscribe />
+    </div>
 </div>
