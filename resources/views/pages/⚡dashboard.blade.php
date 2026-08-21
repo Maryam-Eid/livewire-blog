@@ -181,7 +181,7 @@ new class extends Component {
         <!-- Views Chart -->
         <div class="bg-white rounded-lg border border-gray-200 p-6">
             <h2 class="text-lg font-semibold text-gray-900 mb-4">Views Last 7 Days</h2>
-            <div class="h-64">
+            <div class="h-64" wire:ignore>
                 <canvas id="viewsChart"></canvas>
             </div>
         </div>
@@ -252,18 +252,30 @@ new class extends Component {
     ></div>
 
     <script>
-        document.addEventListener('livewire:navigated', function(){
+        let viewsChartInstance = null;
+
+        function renderViewsChart() {
             const ctx = document.getElementById('viewsChart');
             const chartDataEl = document.getElementById('viewsChartData');
 
-            // read data from data attributes
+            if (!ctx || !chartDataEl) {
+                return;
+            }
+
+            if (viewsChartInstance) {
+                viewsChartInstance.destroy();
+                viewsChartInstance = null;
+            }
+
+            const existingChart = Chart.getChart(ctx);
+            if (existingChart) {
+                existingChart.destroy();
+            }
+
             const labels = JSON.parse(chartDataEl.dataset.labels);
             const data = JSON.parse(chartDataEl.dataset.counts);
 
-            console.log('labels:',labels);
-            console.log('counts:',data);
-
-            new Chart(ctx, {
+            viewsChartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
@@ -298,6 +310,8 @@ new class extends Component {
                     }
                 }
             });
-        });
+        }
+
+        document.addEventListener('livewire:navigated', renderViewsChart);
     </script>
 </div>

@@ -42,7 +42,7 @@ new class extends Component {
 <div>
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900">Tags</h1>
-        <p class="mt-1 text-sm text-gray-600">Manage post tags.</p>
+        <p class="mt-1 text-sm text-gray-600">Manage post tags</p>
     </div>
 
     <div class="mb-6 rounded-lg border border-gray-200 bg-white p-4">
@@ -51,7 +51,7 @@ new class extends Component {
                 type="text"
                 wire:model.live.debounce.300ms="search"
                 placeholder="Search tags..."
-                class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                class="p-2 flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
             />
 
             <a
@@ -82,7 +82,7 @@ new class extends Component {
                         Tag
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        #Posts
+                        Posts
                     </th>
                     <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                         Created
@@ -116,7 +116,7 @@ new class extends Component {
                                 <a
                                     href="{{ route('tags.edit', $tag) }}"
                                     wire:navigate
-                                    class="text-indigo-600 hover:text-indigo-900"
+                                    class="cursor-pointer rounded-md px-2 py-1 text-indigo-600 transition hover:bg-indigo-100 hover:text-indigo-900"
                                 >
                                     Edit
                                 </a>
@@ -124,7 +124,7 @@ new class extends Component {
                                 <button
                                     wire:click="deleteTag({{ $tag->id }})"
                                     wire:confirm="Delete this tag? It will be removed from its posts."
-                                    class="text-red-600 hover:text-red-900"
+                                    class="cursor-pointer rounded-md px-2 py-1 text-red-600 transition hover:bg-red-100 hover:text-red-900"
                                 >
                                     Delete
                                 </button>

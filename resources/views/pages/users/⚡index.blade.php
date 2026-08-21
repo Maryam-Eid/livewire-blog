@@ -64,13 +64,13 @@ new class extends Component {
 
     <!-- Filters -->
     <div class="mb-6 bg-white rounded-lg border border-gray-200 p-4">
-        <div class="flex flex-col sm:flex-row gap-4">
+        <div class="flex flex-col sm:flex-row gap-4 items-center">
             <div class="flex-1">
                 <input
                     type="text"
                     wire:model.live.debounce.300ms="search"
                     placeholder="Search users..."
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    class="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 />
             </div>
 
@@ -173,7 +173,7 @@ new class extends Component {
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex justify-end gap-2">
                                 <a href="{{ route('users.edit', $user) }}"
-                                   class="text-indigo-600 hover:text-indigo-900">
+                                   class="cursor-pointer rounded-md px-2 py-1 text-indigo-600 transition hover:bg-indigo-100 hover:text-indigo-900">
                                     Edit
                                 </a>
 
@@ -181,7 +181,7 @@ new class extends Component {
                                     <button
                                         wire:click="deleteUser({{ $user->id }})"
                                         wire:confirm="Are you sure you want to delete this user?"
-                                        class="text-red-600 hover:text-red-900"
+                                        class="cursor-pointer rounded-md px-2 py-1 text-red-600 transition hover:bg-red-100 hover:text-red-900"
                                     >
                                         Delete
                                     </button>

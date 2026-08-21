@@ -74,13 +74,13 @@ new class extends Component
 
     <!-- Filters -->
     <div class="mb-6 bg-white rounded-lg border border-gray-200 p-4">
-        <div class="flex flex-col sm:flex-row gap-4">
+        <div class="flex flex-col sm:flex-row gap-4 items-center">
             <div class="flex-1">
                 <input
                     type="text"
                     wire:model.live.debounce.300ms="search"
                     placeholder="Search comments..."
-                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    class="p-2  w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 />
             </div>
 
@@ -147,7 +147,7 @@ new class extends Component
                             @if($comment->status !== 'approved')
                                 <button
                                     wire:click="approveComment({{ $comment->id }})"
-                                    class="text-sm text-green-600 hover:text-green-800 font-medium"
+                                    class="cursor-pointer text-sm rounded-md px-2 py-1 text-green-600 transition hover:bg-green-100 hover:text-green-800"
                                 >
                                     Approve
                                 </button>
@@ -156,7 +156,7 @@ new class extends Component
                             @if($comment->status !== 'spam')
                                 <button
                                     wire:click="markAsSpam({{ $comment->id }})"
-                                    class="text-sm text-orange-600 hover:text-orange-800 font-medium"
+                                    class="cursor-pointer text-sm rounded-md px-2 py-1 text-red-600 transition hover:bg-red-100 hover:text-red-900"
                                 >
                                     Mark as Spam
                                 </button>
@@ -165,7 +165,7 @@ new class extends Component
                             <button
                                 wire:click="deleteComment({{ $comment->id }})"
                                 wire:confirm="Are you sure you want to delete this comment?"
-                                class="text-sm text-red-600 hover:text-red-800 font-medium"
+                                class="cursor-pointer text-sm rounded-md px-2 py-1 text-red-600 transition hover:bg-red-100 hover:text-red-900"
                             >
                                 Delete
                             </button>

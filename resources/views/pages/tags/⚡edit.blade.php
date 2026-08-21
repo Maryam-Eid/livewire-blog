@@ -41,13 +41,13 @@ new class extends Component {
 <div>
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900">Edit Tag</h1>
-        <p class="mt-1 text-sm text-gray-600">Update tag details.</p>
+        <p class="mt-1 text-sm text-gray-600">Update tag details</p>
     </div>
 
     <div class="rounded-lg border border-gray-200 bg-white p-6">
         <form wire:submit="update" class="space-y-6">
             <div>
-                <label for="name" class="block text-sm font-medium text-gray-700">
+                <label for="name" class="required-label block text-sm font-medium text-gray-700">
                     Name
                 </label>
 
@@ -55,7 +55,7 @@ new class extends Component {
                     id="name"
                     type="text"
                     wire:model="name"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    class="p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                 />
 
                 @error('name')
@@ -66,7 +66,7 @@ new class extends Component {
             <div class="flex gap-3">
                 <button
                     type="submit"
-                    class="inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white hover:bg-indigo-700"
+                    class="cursor-pointer inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-white hover:bg-indigo-700"
                 >
                     Update Tag
                 </button>

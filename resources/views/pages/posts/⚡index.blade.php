@@ -12,7 +12,7 @@ new class extends Component {
 
     public function with(): array
     {
-        $query = Post::with(['user','categories','tags'])
+        $query = Post::with(['user', 'categories', 'tags'])
             ->withCount('comments')
             ->latest();
 
@@ -47,7 +47,7 @@ new class extends Component {
     public function deletePost(Post $post): void
     {
         if ((auth()->user()->can('delete-post') && $post->user_id == auth()->user()->id)
-            || auth()->user()->can('delete-any-post')){
+            || auth()->user()->can('delete-any-post')) {
             $post->delete();
 
             session()->flash('success', 'Post deleted successfully!');
@@ -64,11 +64,11 @@ new class extends Component {
     </div>
 
     {{-- filters --}}
-    <div class="mb-6 bg-white rounded-lg border border-gray-200 p-4">
-        <div class="flex flex-col sm:flex-row gap-4">
+    <div class="mb-6 bg-white rounded-lg border border-gray-200 p-4 center">
+        <div class="flex flex-col gap-4 sm:flex-row items-center">
             <div class="flex-1">
                 <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search posts..."
-                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                       class="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"/>
             </div>
 
             <div class="sm:w-48">
@@ -86,7 +86,8 @@ new class extends Component {
                     <a href="{{ route('posts.create') }}"
                        class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 4v16m8-8H4"></path>
                         </svg>
                         New Post
                     </a>
@@ -136,9 +137,12 @@ new class extends Component {
                             <div class="text-sm text-gray-500">{{ Str::limit($post->excerpt, 50) }}</div>
                             @if($post->comments_count > 0)
                                 <div class="mt-1">
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                        <span
+                                            class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
                                             <svg class="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"></path>
+                                                <path fill-rule="evenodd"
+                                                      d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"
+                                                      clip-rule="evenodd"></path>
                                             </svg>
                                             {{ $post->comments_count }} {{ Str::plural('comment', $post->comments_count) }}
                                         </span>
@@ -178,7 +182,8 @@ new class extends Component {
                             <div class="flex justify-end gap-2">
                                 @if(auth()->user()->can('edit-any-post') ||
                                     (auth()->user()->can('edit-post') && $post->user_id === auth()->id()))
-                                    <a href="{{ route('posts.edit', $post) }}" class="text-indigo-600 hover:text-indigo-900">
+                                    <a href="{{ route('posts.edit', $post) }}"
+                                       class="cursor-pointer rounded-md px-2 py-1 text-indigo-600 transition hover:bg-indigo-100 hover:text-indigo-900">
                                         Edit
                                     </a>
                                 @endif
@@ -188,7 +193,7 @@ new class extends Component {
                                     <button
                                         wire:click="deletePost({{ $post->id }})"
                                         wire:confirm="Are you sure you want to delete this post?"
-                                        class="text-red-600 hover:text-red-900"
+                                        class="cursor-pointer rounded-md px-2 py-1 text-red-600 transition hover:bg-red-100 hover:text-red-900"
                                     >
                                         Delete
                                     </button>

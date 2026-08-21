@@ -132,5 +132,11 @@ class extends Component {
 
         {{-- Comment section --}}
         <livewire:blog.comments :post="$post"/>
+
     </article>
+
+    <!-- Subscribe Section -->
+    <div class="mt-20">
+        <livewire:blog.subscribe />
+    </div>
 </div>
