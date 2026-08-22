@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Post;
 use App\Models\User;
+use DateTimeInterface;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -65,6 +66,17 @@ class PostFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'status' => 'draft',
             'published_at' => null,
+        ]);
+    }
+
+    /**
+     * Indicate that the post is scheduled for future publication.
+     */
+    public function scheduled(?DateTimeInterface $publishAt = null): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'scheduled',
+            'published_at' => $publishAt ?? fake()->dateTimeBetween('+1 hour', '+1 month'),
         ]);
     }
 

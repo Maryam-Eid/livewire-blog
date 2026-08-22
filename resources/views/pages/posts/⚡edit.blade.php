@@ -3,8 +3,10 @@
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\Tag;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -26,8 +28,11 @@ new class extends Component {
     #[Validate('nullable|image|max:2048')]
     public $featured_image;
 
-    #[Validate('required|in:draft,published,archived')]
+    #[Validate('required|in:draft,scheduled,published,archived')]
     public string $status = '';
+
+    #[Validate('required_if:status,scheduled|nullable|date_format:Y-m-d H:i')]
+    public ?string $scheduledAt = null;
 
     public string $existing_image = '';
 
@@ -57,6 +62,9 @@ new class extends Component {
         $this->excerpt = $post->excerpt ?? '';
         $this->content = $post->content;
         $this->status = $post->status;
+        $this->scheduledAt = $post->status === 'scheduled'
+            ? $post->published_at?->format('Y-m-d H:i')
+            : null;
         $this->existing_image = $post->featured_image ?? '';
 
         $this->selectedCategories = $post->categories->pluck('id')->toArray();
@@ -116,6 +124,16 @@ new class extends Component {
     {
         $this->validate();
 
+        if (
+            in_array($this->status, ['scheduled', 'published', 'archived'], true)
+            && ! auth()->user()->can('publish-post')
+        ) {
+            abort(403);
+        }
+
+        $scheduledAt = $this->scheduledPublicationAt();
+        $wasPublished = $this->post->status === 'published';
+
         $this->post->title = $this->title;
         $this->post->slug = Str::slug($this->title);
         $this->post->excerpt = $this->excerpt;
@@ -133,9 +151,14 @@ new class extends Component {
             $this->existing_image = $path;
         }
 
-        if ($this->status === 'published' && ! $this->post->published_at) {
-            $this->post->published_at = now();
-        }
+        $this->post->published_at = match ($this->status) {
+            'scheduled' => $scheduledAt,
+            'published' => $wasPublished && $this->post->published_at
+                ? $this->post->published_at
+                : now(),
+            'draft' => null,
+            default => $this->post->published_at,
+        };
 
         $this->post->save();
 
@@ -145,6 +168,26 @@ new class extends Component {
         session()->flash('success', 'Post updated successfully!');
 
         $this->redirect(route('posts.index'), navigate: true);
+    }
+
+    private function scheduledPublicationAt(): ?CarbonImmutable
+    {
+        if ($this->status !== 'scheduled') {
+            return null;
+        }
+
+        $scheduledAt = CarbonImmutable::parse(
+            $this->scheduledAt,
+            config('app.timezone'),
+        );
+
+        if ($scheduledAt->lessThanOrEqualTo(now())) {
+            throw ValidationException::withMessages([
+                'scheduledAt' => 'Choose a future date and time.',
+            ]);
+        }
+
+        return $scheduledAt;
     }
 };
 ?>
@@ -405,7 +448,7 @@ new class extends Component {
                     <label class="flex items-start">
                         <input
                             type="radio"
-                            wire:model="status"
+                            wire:model.live="status"
                             value="draft"
                             class="mt-1 h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
                         >
@@ -422,7 +465,7 @@ new class extends Component {
                         <label class="flex items-start">
                             <input
                                 type="radio"
-                                wire:model="status"
+                                wire:model.live="status"
                                 value="published"
                                 class="mt-1 h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
                             >
@@ -438,7 +481,67 @@ new class extends Component {
                         <label class="flex items-start">
                             <input
                                 type="radio"
-                                wire:model="status"
+                                wire:model.live="status"
+                                value="scheduled"
+                                class="mt-1 h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                            >
+
+                            <div class="ml-3">
+                                <span class="block text-sm font-medium text-gray-700">Scheduled</span>
+                                <span class="block text-sm text-gray-500">
+                                    Publish automatically at a future date and time.
+                                </span>
+                            </div>
+                        </label>
+
+                        @if ($status === 'scheduled')
+                            <div class="ml-7 rounded-lg border border-indigo-200 bg-indigo-50 p-4 dark:border-indigo-800" wire:transition>
+                                <label for="scheduledAt" class="required-label block text-sm font-medium text-gray-700">
+                                    Publication date and time
+                                </label>
+                                <div
+                                    wire:ignore
+                                    x-data="{
+                                        picker: null,
+                                        init() {
+                                            this.picker = window.flatpickr(this.$refs.input, {
+                                                enableTime: true,
+                                                dateFormat: 'Y-m-d H:i',
+                                                altInput: true,
+                                                altFormat: 'F j, Y at h:i K',
+                                                defaultDate: @js($scheduledAt),
+                                                minDate: new Date(),
+                                                minuteIncrement: 15,
+                                                onChange: (dates, value) => $wire.set('scheduledAt', value),
+                                            });
+                                        },
+                                        destroy() {
+                                            this.picker?.destroy();
+                                        },
+                                    }"
+                                >
+                                    <input
+                                        id="scheduledAt"
+                                        x-ref="input"
+                                        type="text"
+                                        placeholder="Choose publication date and time"
+                                        class="mt-1 block w-full rounded-md border-gray-300 p-2 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                    >
+                                </div>
+
+                                <p class="mt-1 text-xs text-gray-500">
+                                    Timezone: {{ config('app.timezone') }}
+                                </p>
+                                @error('scheduledAt')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        @endif
+
+                        <label class="flex items-start">
+                            <input
+                                type="radio"
+                                wire:model.live="status"
                                 value="archived"
                                 class="mt-1 h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-500"
                             >

@@ -76,6 +76,7 @@ new class extends Component {
                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                     <option value="all">All Posts</option>
                     <option value="draft">Draft</option>
+                    <option value="scheduled">Scheduled</option>
                     <option value="published">Published</option>
                     <option value="archived">Archived</option>
                 </select>
@@ -170,10 +171,16 @@ new class extends Component {
                                 <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
                                     {{ $post->status === 'published' ? 'bg-green-100 text-green-800' : '' }}
                                     {{ $post->status === 'draft' ? 'bg-yellow-100 text-yellow-800' : '' }}
+                                    {{ $post->status === 'scheduled' ? 'bg-indigo-100 text-indigo-800' : '' }}
                                     {{ $post->status === 'archived' ? 'bg-gray-100 text-gray-800' : '' }}
                                 ">
                                     {{ ucfirst($post->status) }}
                                 </span>
+                            @if ($post->status === 'scheduled')
+                                <div class="mt-1 text-xs text-gray-500">
+                                    {{ $post->published_at?->format('M d, Y · g:i A') }}
+                                </div>
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {{ $post->created_at->format('M d, Y') }}

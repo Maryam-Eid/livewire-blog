@@ -29,7 +29,7 @@ class PostList extends Component
     public function render()
     {
         $posts = Post::with(['user', 'categories', 'tags'])
-            ->where('status', 'published')
+            ->published()
             ->when($this->search, function ($query) {
                 $query->where(function ($query) {
                     $query->where('title', 'like', '%'.$this->search.'%')

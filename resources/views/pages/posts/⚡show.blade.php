@@ -12,7 +12,7 @@ class extends Component {
     public function mount($slug)
     {
         $this->post = Post::where('slug', $slug)
-            ->where('status', 'published')
+            ->published()
             ->with(['user', 'categories', 'tags'])
             ->firstOrFail();
 

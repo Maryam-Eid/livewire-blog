@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Database\Factories\PostFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -45,6 +47,23 @@ class Post extends Model
     public function views(): HasMany
     {
         return $this->hasMany(PostView::class);
+    }
+
+    #[Scope]
+    public function published(Builder $query): void
+    {
+        $query
+            ->where('status', 'published')
+            ->where('published_at', '<=', now());
+    }
+
+    #[Scope]
+    public function dueForPublishing(Builder $query): void
+    {
+        $query
+            ->where('status', 'scheduled')
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now());
     }
 
     public function featuredImageUrl(): ?string

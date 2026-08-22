@@ -1,3 +1,4 @@
+@import 'flatpickr/dist/flatpickr.css';
 @import 'tailwindcss';
 @plugin "@tailwindcss/typography";
 @import '../../vendor/livewire/flux/dist/flux.css';
@@ -220,4 +221,43 @@ select:focus[data-flux-control] {
 .dark .subscribe-success {
     border: 1px solid var(--color-green-900);
     background-color: color-mix(in oklab, var(--color-green-950) 88%, transparent);
+}
+
+.dark .flatpickr-calendar,
+.dark .flatpickr-months .flatpickr-month,
+.dark .flatpickr-current-month .flatpickr-monthDropdown-months,
+.dark .flatpickr-time input,
+.dark .flatpickr-time .flatpickr-am-pm {
+    border-color: var(--color-zinc-700);
+    background: var(--color-zinc-900);
+    color: var(--color-zinc-100);
+}
+
+.dark .flatpickr-calendar.arrowTop::before {
+    border-bottom-color: var(--color-zinc-700);
+}
+
+.dark .flatpickr-calendar.arrowTop::after {
+    border-bottom-color: var(--color-zinc-900);
+}
+
+.dark span.flatpickr-weekday,
+.dark .flatpickr-day {
+    color: var(--color-zinc-300);
+}
+
+.dark .flatpickr-day:hover,
+.dark .flatpickr-day:focus {
+    border-color: var(--color-zinc-600);
+    background: var(--color-zinc-700);
+}
+
+.dark .flatpickr-day.selected {
+    border-color: var(--color-indigo-500);
+    background: var(--color-indigo-600);
+    color: white;
+}
+
+.dark .flatpickr-day.flatpickr-disabled {
+    color: var(--color-zinc-600);
 }

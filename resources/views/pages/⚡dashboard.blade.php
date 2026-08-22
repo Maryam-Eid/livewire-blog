@@ -20,7 +20,7 @@ new class extends Component {
         // calculate stats
         $stats = [
             'total_posts' => (clone $postsQuery)->count(),
-            'published_posts' => (clone $postsQuery)->where('status', 'published')->count(),
+            'published_posts' => (clone $postsQuery)->published()->count(),
             'draft_posts' => (clone $postsQuery)->where('status', 'draft')->count(),
             'total_views' => (clone $postsQuery)->sum('views_count'),
             'total_comments' => $isAdmin ? Comment::count() : Comment::whereHas('post', function ($q) use ($user) {
@@ -31,7 +31,7 @@ new class extends Component {
 
         // Most viewed posts
         $mostViewedPosts = (clone $postsQuery)
-            ->where('status', 'published')
+            ->published()
             ->orderBy('views_count', 'desc')
             ->take(5)
             ->get();
