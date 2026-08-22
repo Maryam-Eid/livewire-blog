@@ -46,8 +46,10 @@ class extends Component {
 
         <!-- Featured Image -->
         @if($post->featured_image)
-            <img src="{{ Storage::url($post->featured_image) }}" alt="{{ $post->title }}"
-                 class="w-full h-96 object-cover rounded-lg mb-8">
+            <img src="{{ $post->featuredImageUrl() }}" alt="{{ $post->title }}"
+                 loading="lazy"
+                 class="w-full h-96 object-cover rounded-lg mb-8"
+                 onerror="this.remove()">
         @endif
 
         <!-- Post Header -->

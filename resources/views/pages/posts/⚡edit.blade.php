@@ -123,7 +123,7 @@ new class extends Component {
         $this->post->status = $this->status;
 
         if ($this->featured_image) {
-            if ($this->existing_image) {
+            if ($this->existing_image && ! Str::startsWith($this->existing_image, ['http://', 'https://'])) {
                 Storage::disk('public')->delete($this->existing_image);
             }
 
@@ -201,24 +201,14 @@ new class extends Component {
                     Content
                 </label>
 
-                <div
-                    wire:ignore
-                    x-data="{ content: $wire.entangle('content') }"
-                    x-init="
-                        let editor = $refs.trixEditor.editor;
-                        editor.loadHTML(content);
-
-                        $refs.trixEditor.addEventListener('trix-change', function (event) {
-                            content = event.target.value;
-                        });
-                    "
-                >
-                    <input id="x-content" type="hidden" name="content">
+                <div wire:ignore>
+                    <input id="x-content" type="hidden" name="content" value="{{ $content }}">
 
                     <trix-editor
                         input="x-content"
                         class="trix-content"
-                        x-ref="trixEditor"
+                        x-data
+                        x-on:trix-change="$wire.content = $event.target.value"
                     ></trix-editor>
                 </div>
 
@@ -238,7 +228,7 @@ new class extends Component {
                         <p class="mb-1 text-sm text-gray-600">Current image:</p>
 
                         <img
-                            src="{{ Storage::url($existing_image) }}"
+                            src="{{ $post->featuredImageUrl() }}"
                             alt="Current image"
                             class="h-32 w-auto rounded border border-gray-300"
                         >

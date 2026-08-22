@@ -20,12 +20,12 @@
                 <div class="mb-6">
                     <h3 class="text-sm font-medium text-gray-700 mb-3">Categories</h3>
                     <div class="space-y-2">
-                        <button wire:click="$set('selectedCategory', '')"
+                        <button wire:click="selectCategory"
                                 class="cursor-pointer hover:bg-indigo-50 w-full text-left px-3 py-2 rounded-md text-sm {{ $selectedCategory === '' ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
                             All Categories
                         </button>
                         @foreach($categories as $category)
-                            <button wire:click="$set('selectedCategory', '{{ $category->slug }}')"
+                            <button wire:click="selectCategory('{{ $category->slug }}')"
                                     class="cursor-pointer hover:bg-indigo-50 w-full text-left px-3 py-2 rounded-md text-sm flex items-center justify-between {{ $selectedCategory === $category->slug ? 'bg-indigo-50 text-indigo-700 font-medium' : 'text-gray-700 hover:bg-gray-50' }}">
                                 <span class="flex items-center">
                                     <span class="inline-block w-3 h-3 rounded-full mr-2"
@@ -44,7 +44,7 @@
                     <div class="flex flex-wrap gap-2">
                         @foreach($tags as $tag)
                             @if($tag->posts_count > 0)
-                                <button wire:click="$set('selectedTag', '{{ $tag->slug }}')"
+                                <button wire:click="selectTag('{{ $tag->slug }}')"
                                         class="cursor-pointer px-3 py-1 rounded-full text-xs font-medium {{ $selectedTag === $tag->slug ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300' }}">
                                     {{ $tag->name }} ({{ $tag->posts_count }})
                                 </button>
@@ -72,19 +72,23 @@
                             <!-- Image -->
                             <a href="{{ route('blog.show', $post->slug) }}" wire:navigate class="block relative overflow-hidden">
                                 @if($post->featured_image)
-                                    <img src="{{ Storage::url($post->featured_image) }}" alt="{{ $post->title }}"
+                                    <img src="{{ $post->featuredImageUrl() }}" alt="{{ $post->title }}"
+                                         loading="lazy"
                                          class="h-52 w-full object-cover transition-transform duration-500 group-hover:scale-105">
+                                    <div hidden class="flex h-52 w-full items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 transition-transform duration-500 group-hover:scale-105">
+                                        <span class="px-6 text-center text-xl font-bold leading-snug text-white/90">{{ $post->title }}</span>
+                                    </div>
                                 @else
                                     <div class="flex h-52 w-full items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 transition-transform duration-500 group-hover:scale-105">
-                                        <span class="text-5xl font-bold text-white/90">{{ substr($post->title, 0, 1) }}</span>
+                                        <span class="px-6 text-center text-xl font-bold leading-snug text-white/90">{{ $post->title }}</span>
                                     </div>
                                 @endif
 
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
 
-                                @if($post->category)
+                                @if($category = $post->categories->first())
                                     <span class="absolute top-3 left-3 inline-flex items-center rounded-full bg-white/90 backdrop-blur px-3 py-1 text-xs font-semibold text-indigo-700 shadow-sm">
-                    {{ $post->category->name }}
+                    {{ $category->name }}
                 </span>
                                 @endif
                             </a>
@@ -100,7 +104,7 @@
 
                                 @if($post->excerpt)
                                     <p class="mb-4 flex-1 text-sm leading-relaxed text-gray-600 line-clamp-3">
-                                        {{ $post->excerpt }}
+                                        {{ Str::limit($post->excerpt, 120) }}
                                     </p>
                                 @endif
 

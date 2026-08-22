@@ -13,7 +13,6 @@ use Livewire\WithPagination;
 
 class PostList extends Component
 {
-
     use WithPagination;
 
     #[Url(as: 'q')]
@@ -33,9 +32,9 @@ class PostList extends Component
             ->where('status', 'published')
             ->when($this->search, function ($query) {
                 $query->where(function ($query) {
-                    $query->where('title', 'like', '%' . $this->search . '%')
-                        ->orWhere('content', 'like', '%' . $this->search . '%')
-                        ->orWhere('excerpt', 'like', '%' . $this->search . '%');
+                    $query->where('title', 'like', '%'.$this->search.'%')
+                        ->orWhere('content', 'like', '%'.$this->search.'%')
+                        ->orWhere('excerpt', 'like', '%'.$this->search.'%');
                 });
             })
             ->when($this->selectedCategory, function ($query) {
@@ -49,7 +48,7 @@ class PostList extends Component
                 });
             })
             ->latest('published_at')
-            ->paginate(10);
+            ->paginate(9);
 
         return view('livewire.post-list',
             [
@@ -79,6 +78,18 @@ class PostList extends Component
         $this->search = '';
         $this->selectedCategory = '';
         $this->selectedTag = '';
+        $this->resetPage();
+    }
+
+    public function selectCategory(string $slug = ''): void
+    {
+        $this->selectedCategory = $slug;
+        $this->resetPage();
+    }
+
+    public function selectTag(string $slug = ''): void
+    {
+        $this->selectedTag = $slug;
         $this->resetPage();
     }
 }

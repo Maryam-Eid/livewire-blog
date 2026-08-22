@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
             TagSeeder::class,
         ]);
 
-        $admin =  User::factory()->create([
+        $admin = User::factory()->create([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
         ]);
@@ -32,5 +32,10 @@ class DatabaseSeeder extends Seeder
             'email' => 'author@example.com',
         ]);
         $author->assignRole('author');
+
+        $this->call([
+            PostSeeder::class,
+            CommentSeeder::class,
+        ]);
     }
 }
