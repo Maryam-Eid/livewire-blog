@@ -273,6 +273,9 @@ new class extends Component {
 
             const labels = JSON.parse(chartDataEl.dataset.labels);
             const data = JSON.parse(chartDataEl.dataset.counts);
+            const isDark = document.documentElement.classList.contains('dark');
+            const chartTextColor = isDark ? 'rgb(212, 212, 216)' : 'rgb(82, 82, 91)';
+            const chartGridColor = isDark ? 'rgba(113, 113, 122, 0.25)' : 'rgba(212, 212, 216, 0.6)';
 
             window.viewsChartInstance = new window.Chart(ctx, {
                 type: 'line',
@@ -300,10 +303,22 @@ new class extends Component {
                         }
                     },
                     scales: {
+                        x: {
+                            ticks: {
+                                color: chartTextColor
+                            },
+                            grid: {
+                                color: chartGridColor
+                            }
+                        },
                         y: {
                             beginAtZero: true,
                             ticks: {
+                                color: chartTextColor,
                                 precision: 0
+                            },
+                            grid: {
+                                color: chartGridColor
                             }
                         }
                     }

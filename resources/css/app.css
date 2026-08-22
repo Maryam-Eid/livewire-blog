@@ -70,3 +70,154 @@ select:focus[data-flux-control] {
     content: " *";
     color: #ef4444;
 }
+
+/* Dark-mode compatibility for the custom Tailwind views. */
+.dark {
+    color-scheme: dark;
+}
+
+.dark .bg-white {
+    background-color: var(--color-zinc-900);
+}
+
+.dark .bg-gray-50 {
+    background-color: var(--color-zinc-800);
+}
+
+.dark .bg-gray-100,
+.dark .bg-gray-200 {
+    background-color: var(--color-zinc-700);
+}
+
+.dark .text-gray-900,
+.dark .text-gray-800 {
+    color: var(--color-zinc-100);
+}
+
+.dark .text-gray-700,
+.dark .text-gray-600 {
+    color: var(--color-zinc-300);
+}
+
+.dark .text-gray-500,
+.dark .text-gray-400 {
+    color: var(--color-zinc-400);
+}
+
+.dark .border-gray-100,
+.dark .border-gray-200,
+.dark .border-gray-300 {
+    border-color: var(--color-zinc-700);
+}
+
+.dark .divide-gray-200 > :not(:last-child) {
+    border-color: var(--color-zinc-700);
+}
+
+.dark .text-indigo-600,
+.dark .text-indigo-700,
+.dark .text-indigo-800,
+.dark .text-indigo-900 {
+    color: var(--color-indigo-400);
+}
+
+.dark .bg-indigo-50,
+.dark .bg-indigo-100 {
+    background-color: color-mix(in oklab, var(--color-indigo-950) 85%, transparent);
+}
+
+.dark .bg-green-50,
+.dark .bg-green-100 {
+    background-color: color-mix(in oklab, var(--color-green-950) 85%, transparent);
+}
+
+.dark .text-green-600,
+.dark .text-green-700,
+.dark .text-green-800 {
+    color: var(--color-green-400);
+}
+
+.dark .bg-yellow-50,
+.dark .bg-yellow-100 {
+    background-color: color-mix(in oklab, var(--color-yellow-950) 85%, transparent);
+}
+
+.dark .text-yellow-700,
+.dark .text-yellow-800 {
+    color: var(--color-yellow-300);
+}
+
+.dark .bg-red-50,
+.dark .bg-red-100 {
+    background-color: color-mix(in oklab, var(--color-red-950) 85%, transparent);
+}
+
+.dark .text-red-600,
+.dark .text-red-700,
+.dark .text-red-800 {
+    color: var(--color-red-400);
+}
+
+.dark .bg-blue-50,
+.dark .bg-blue-100,
+.dark .bg-purple-100 {
+    background-color: var(--color-zinc-800);
+}
+
+.dark .hover\:bg-gray-50:hover,
+.dark .hover\:bg-gray-100:hover,
+.dark .hover\:bg-gray-200:hover {
+    background-color: var(--color-zinc-700);
+}
+
+.dark input:not([data-flux-control]):not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.dark textarea:not([data-flux-control]),
+.dark select:not([data-flux-control]),
+.dark trix-editor {
+    border-color: var(--color-zinc-600);
+    background-color: var(--color-zinc-900);
+    color: var(--color-zinc-100);
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+    color: var(--color-zinc-500);
+}
+
+.dark trix-toolbar .trix-button {
+    border-color: var(--color-zinc-600);
+    background-color: var(--color-zinc-800);
+    filter: invert(1);
+}
+
+.dark trix-toolbar .trix-button.trix-active {
+    background-color: var(--color-zinc-600);
+}
+
+.dark .subscribe-field,
+.dark .subscribe-button {
+    color-scheme: light;
+    background-color: color-mix(in oklab, white 96%, transparent);
+}
+
+.dark .subscribe-field {
+    background-color: color-mix(in oklab, white 96%, transparent) !important;
+    color: var(--color-zinc-950) !important;
+}
+
+.dark .subscribe-field::placeholder {
+    color: var(--color-zinc-500) !important;
+}
+
+.dark .subscribe-button {
+    color: var(--color-indigo-700);
+}
+
+.dark .subscribe-button:hover {
+    background-color: var(--color-indigo-50);
+}
+
+.dark .subscribe-success {
+    border: 1px solid var(--color-green-900);
+    background-color: color-mix(in oklab, var(--color-green-950) 88%, transparent);
+}
