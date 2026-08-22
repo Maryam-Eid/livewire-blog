@@ -80,6 +80,10 @@ new class extends Component {
 };
 ?>
 
+@assets
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+@endassets
+
 <div>
     <div class="mb-6 flex items-center justify-between">
         <div class="mb-6">
@@ -228,10 +232,10 @@ new class extends Component {
                             <span class="text-gray-500 font-normal">commented on</span>
                             <a href="{{ route('posts.edit', $comment->post) }}"
                                class="text-indigo-600 hover:text-indigo-800">
-                                {{ Str::limit($comment->post->title, 30) }}
+                                {{ $comment->post->title }}
                             </a>
                         </p>
-                        <p class="text-sm text-gray-600 mt-1">{{ Str::limit($comment->content, 100) }}</p>
+                        <p class="text-sm text-gray-600 mt-1">{{ Str::limit($comment->content, 200) }}</p>
                         <p class="text-xs text-gray-500 mt-1">{{ $comment->created_at->diffForHumans() }}</p>
                     </div>
                 </div>
@@ -241,33 +245,28 @@ new class extends Component {
         </div>
     </div>
 
-    <!-- Chart.js Script -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <!-- Pass data via data attributes -->
     <div
         id="viewsChartData"
         data-labels='@json($viewsData->pluck('date')->toArray())'
         data-counts='@json($viewsData->pluck('count')->toArray())'
-        style="display: none;"
+        hidden
     ></div>
 
+    @script
     <script>
-        let viewsChartInstance = null;
-
-        function renderViewsChart() {
+        const renderViewsChart = () => {
             const ctx = document.getElementById('viewsChart');
             const chartDataEl = document.getElementById('viewsChartData');
 
-            if (!ctx || !chartDataEl) {
+            if (!ctx || !chartDataEl || !window.Chart) {
                 return;
             }
 
-            if (viewsChartInstance) {
-                viewsChartInstance.destroy();
-                viewsChartInstance = null;
+            if (window.viewsChartInstance) {
+                window.viewsChartInstance.destroy();
             }
 
-            const existingChart = Chart.getChart(ctx);
+            const existingChart = window.Chart.getChart(ctx);
             if (existingChart) {
                 existingChart.destroy();
             }
@@ -275,7 +274,7 @@ new class extends Component {
             const labels = JSON.parse(chartDataEl.dataset.labels);
             const data = JSON.parse(chartDataEl.dataset.counts);
 
-            viewsChartInstance = new Chart(ctx, {
+            window.viewsChartInstance = new window.Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
@@ -310,8 +309,9 @@ new class extends Component {
                     }
                 }
             });
-        }
+        };
 
-        document.addEventListener('livewire:navigated', renderViewsChart);
+        renderViewsChart();
     </script>
+    @endscript
 </div>
