@@ -15,10 +15,11 @@ class Category extends Model
         return $this->belongsToMany(Post::class);
     }
 
-    protected static function boot(){
+    protected static function boot()
+    {
         parent::boot();
 
-        static::creating(function($category){
+        static::creating(function ($category) {
             if (empty($category->slug)) {
                 $category->slug = Str::slug($category->name);
             }

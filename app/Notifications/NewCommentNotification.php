@@ -36,11 +36,11 @@ class NewCommentNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('New comment on your post: ' . $this->comment->post->title)
-            ->greeting('Hello ' . $notifiable->name . '!')
-            ->line('Someone has commented on your post: "' . $this->comment->post->title . '".')
-            ->line('**' . $this->comment->user->name . '**')
-            ->line('"' . $this->comment->content . '"')
+            ->subject('New comment on your post: '.$this->comment->post->title)
+            ->greeting('Hello '.$notifiable->name.'!')
+            ->line('Someone has commented on your post: "'.$this->comment->post->title.'".')
+            ->line('**'.$this->comment->user->name.'**')
+            ->line('"'.$this->comment->content.'"')
             ->action('View comment', route('blog.show', $this->comment->post->slug))
             ->line('Thank you for creating a great post!');
     }

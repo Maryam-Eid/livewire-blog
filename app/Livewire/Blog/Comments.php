@@ -11,6 +11,7 @@ use Livewire\Component;
 class Comments extends Component
 {
     public Post $post;
+
     #[Validate('required|string|min:3|max:1000')]
     public string $newComment = '';
 
@@ -26,7 +27,7 @@ class Comments extends Component
 
     public function postComment()
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return redirect()->route('login');
         }
 
@@ -45,7 +46,6 @@ class Comments extends Component
             $this->post->user->notify(new NewCommentNotification($comment));
         }
 
-
         $this->dispatch('comment-posted');
 
         session()->flash('comment-success', 'Comment posted successfully!');
@@ -53,7 +53,7 @@ class Comments extends Component
 
     public function startReply($commentId)
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return redirect()->route('login');
         }
 
@@ -69,7 +69,7 @@ class Comments extends Component
 
     public function postReply($parentId)
     {
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             return redirect()->route('login');
         }
 
@@ -106,7 +106,7 @@ class Comments extends Component
             ->get();
 
         return view('livewire.blog.comments', [
-            'comments' => $comments
+            'comments' => $comments,
         ]);
     }
 }

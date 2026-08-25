@@ -36,14 +36,14 @@ class NewPostPublished extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('New Post: ' . $this->post->title)
+            ->subject('New Post: '.$this->post->title)
             ->greeting('Hello!')
-            ->line('A new post has been published on ' . config('app.name'))
-            ->line('**' . $this->post->title . '**')
+            ->line('A new post has been published on '.config('app.name'))
+            ->line('**'.$this->post->title.'**')
             ->line($this->post->excerpt ?? 'Click below to read the full post.')
             ->action('Read post', route('blog.show', $this->post->slug))
             ->line('Thank you for being a part of our community!')
-            ->line('[Unsubscribe](' . route('unsubscribe', $notifiable->token) . ')');
+            ->line('[Unsubscribe]('.route('unsubscribe', $notifiable->token).')');
     }
 
     /**
