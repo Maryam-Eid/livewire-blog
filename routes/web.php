@@ -9,11 +9,27 @@ Route::livewire('dashboard', 'pages::dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+Route::get('/subscribe/verify/{token}', function (string $token) {
+    $subscriber = Subscriber::query()
+        ->where('token', $token)
+        ->firstOrFail();
+
+    if (! $subscriber->is_verified || $subscriber->verified_at === null) {
+        $subscriber->update([
+            'is_verified' => true,
+            'verified_at' => now(),
+        ]);
+    }
+
+    return view('subscription-verified');
+})->middleware('signed')->name('subscribers.verify');
+
 // Unsubscribe
 Route::get('/unsubscribe/{token}', function ($token) {
     $subscriber = Subscriber::where('token', $token)->firstOrFail();
     if ($subscriber) {
         $subscriber->delete();
+
         return view('unsubscribed');
     }
 
@@ -21,7 +37,7 @@ Route::get('/unsubscribe/{token}', function ($token) {
 })->name('unsubscribe');
 
 // Blog
-Route::get('/', fn() => redirect('/blog'))->name('home');
+Route::get('/', fn () => redirect('/blog'))->name('home');
 Route::get('/blog', PostList::class)->name('blog.index');
 Route::livewire('/blog/{slug}', 'pages::posts.show')->name('blog.show');
 
@@ -82,6 +98,19 @@ Route::middleware('auth')->group(function () {
     Route::livewire('/comments', 'pages::comments.index')
         ->middleware('can:create-post')
         ->name('comments.index');
+
+    // Newsletters
+    Route::livewire('/newsletters', 'pages::newsletters.index')
+        ->middleware('can:manage-newsletters')
+        ->name('newsletters.index');
+
+    Route::livewire('/newsletters/create', 'pages::newsletters.create')
+        ->middleware('can:manage-newsletters')
+        ->name('newsletters.create');
+
+    Route::livewire('/newsletters/{newsletter}/edit', 'pages::newsletters.edit')
+        ->middleware('can:manage-newsletters')
+        ->name('newsletters.edit');
 });
 
-require __DIR__ . '/settings.php';
+require __DIR__.'/settings.php';

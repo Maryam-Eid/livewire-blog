@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -27,30 +26,31 @@ class RolePermissionSeeder extends Seeder
             'publish-post',
             'manage-users',
             'manage-roles',
+            'manage-newsletters',
         ];
 
         foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission]);
+            Permission::findOrCreate($permission);
         }
 
-        $adminRole = Role::create(['name' => 'admin']);
+        $adminRole = Role::findOrCreate('admin');
         $adminRole->givePermissionTo(Permission::all());
 
-        $editorRole = Role::create(['name' => 'editor']);
+        $editorRole = Role::findOrCreate('editor');
         $editorRole->givePermissionTo([
             'create-post',
             'edit-any-post',
             'delete-any-post',
-            'publish-post'
+            'publish-post',
         ]);
 
-        $authorRole = Role::create(['name' => 'author']);
+        $authorRole = Role::findOrCreate('author');
         $authorRole->givePermissionTo([
             'create-post',
             'edit-post',
             'delete-post',
         ]);
 
-        Role::create(['name' => 'subscriber']);
+        Role::findOrCreate('subscriber');
     }
 }

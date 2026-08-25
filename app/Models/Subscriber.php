@@ -2,7 +2,11 @@
 
 namespace App\Models;
 
+use Database\Factories\SubscriberFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
@@ -10,7 +14,8 @@ use Illuminate\Support\Str;
 #[Fillable(['email', 'token', 'is_verified', 'verified_at'])]
 class Subscriber extends Model
 {
-    use Notifiable;
+    /** @use HasFactory<SubscriberFactory> */
+    use HasFactory, Notifiable;
 
     protected $casts = [
         'is_verified' => 'boolean',
@@ -26,7 +31,15 @@ class Subscriber extends Model
         });
     }
 
-    public function routeNotificationForMail()
+    #[Scope]
+    public function verified(Builder $query): void
+    {
+        $query
+            ->where('is_verified', true)
+            ->whereNotNull('verified_at');
+    }
+
+    public function routeNotificationForMail(): string
     {
         return $this->email;
     }

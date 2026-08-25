@@ -31,6 +31,12 @@
                     {{ __('Users') }}
                 </flux:sidebar.item>
             @endcan
+            @can('manage-newsletters')
+                <flux:sidebar.item icon="envelope" :href="route('newsletters.index')"
+                                   :current="request()->routeIs('newsletters.*')" wire:navigate>
+                    {{ __('Newsletter') }}
+                </flux:sidebar.item>
+            @endcan
             @can('manage-roles')
                 <flux:sidebar.item icon="rectangle-group" :href="route('categories.index')"
                                    :current="request()->routeIs('categories.*')" wire:navigate>
