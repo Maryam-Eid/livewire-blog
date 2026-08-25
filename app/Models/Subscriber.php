@@ -8,10 +8,12 @@ use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
+use Laravel\Cashier\Subscription;
 
-#[Fillable(['email', 'token', 'is_verified', 'verified_at'])]
+#[Fillable(['user_id', 'email', 'token', 'is_verified', 'verified_at'])]
 class Subscriber extends Model
 {
     /** @use HasFactory<SubscriberFactory> */
@@ -42,5 +44,22 @@ class Subscriber extends Model
     public function routeNotificationForMail(): string
     {
         return $this->email;
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    #[Scope]
+    public function premium(Builder $query): void
+    {
+        $query->whereIn(
+            'user_id',
+            Subscription::query()
+                ->active()
+                ->where('type', 'premium')
+                ->select('user_id'),
+        );
     }
 }

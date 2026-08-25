@@ -22,9 +22,13 @@ class PostObserver
      */
     public function updated(Post $post): void
     {
-        if ($post->isDirty('status') && $post->status == 'published'
-            && $post->getOriginal('status') != 'published') {
-            $subscribers = Subscriber::where('is_verified', true)->get();
+        if ($post->isDirty('status') && $post->status === 'published'
+            && $post->getOriginal('status') !== 'published') {
+            $subscribers = Subscriber::query()
+                ->verified()
+                ->when($post->is_premium, fn ($query) => $query->premium())
+                ->get();
+
             if ($subscribers->count() > 0) {
                 Notification::send($subscribers, new NewPostPublished($post));
             }

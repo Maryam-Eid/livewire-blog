@@ -28,6 +28,9 @@ new class extends Component {
     #[Validate('required|in:draft,scheduled,published')]
     public string $status = 'draft';
 
+    #[Validate('boolean')]
+    public bool $isPremium = false;
+
     #[Validate('required_if:status,scheduled|nullable|date_format:Y-m-d H:i')]
     public ?string $scheduledAt = null;
 
@@ -109,6 +112,7 @@ new class extends Component {
         $post->excerpt = $this->excerpt;
         $post->content = $this->content;
         $post->status = $this->status;
+        $post->is_premium = $this->isPremium;
 
         if ($this->featured_image) {
             $post->featured_image = $this->featured_image->store('posts', 'public');
@@ -500,6 +504,22 @@ new class extends Component {
                 @error('status')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
+            </div>
+
+            <!-- Access -->
+            <div>
+                <label class="mb-2 block text-sm font-medium text-gray-700">Reader access</label>
+                <label class="flex cursor-pointer items-start rounded-lg border border-gray-200 p-4 transition hover:border-indigo-300">
+                    <input
+                        type="checkbox"
+                        wire:model="isPremium"
+                        class="mt-1 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    >
+                    <span class="ml-3">
+                        <span class="block text-sm font-medium text-gray-900">Premium article</span>
+                        <span class="block text-sm text-gray-500">Only active Premium members can read the full article.</span>
+                    </span>
+                </label>
             </div>
 
             <!-- Actions -->

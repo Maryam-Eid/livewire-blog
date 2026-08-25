@@ -11,13 +11,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['user_id', 'subject', 'content', 'status', 'scheduled_at', 'sent_at', 'recipient_count', 'sent_count', 'failed_count'])]
+#[Fillable(['user_id', 'subject', 'content', 'audience', 'status', 'scheduled_at', 'sent_at', 'recipient_count', 'sent_count', 'failed_count'])]
 class Newsletter extends Model
 {
     /** @use HasFactory<NewsletterFactory> */
     use HasFactory;
 
     protected $attributes = [
+        'audience' => 'all',
         'status' => 'draft',
         'recipient_count' => 0,
         'sent_count' => 0,

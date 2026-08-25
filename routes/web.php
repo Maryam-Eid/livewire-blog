@@ -1,12 +1,13 @@
 <?php
 
+use App\Http\Controllers\SubscriptionController;
 use App\Livewire\PostList;
 use App\Models\Subscriber;
 use Illuminate\Support\Facades\Route;
 
 // Dashboard
 Route::livewire('dashboard', 'pages::dashboard')
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'verified', 'can:create-post'])
     ->name('dashboard');
 
 Route::get('/subscribe/verify/{token}', function (string $token) {
@@ -40,6 +41,18 @@ Route::get('/unsubscribe/{token}', function ($token) {
 Route::get('/', fn () => redirect('/blog'))->name('home');
 Route::get('/blog', PostList::class)->name('blog.index');
 Route::livewire('/blog/{slug}', 'pages::posts.show')->name('blog.show');
+Route::livewire('/pricing', 'pages::pricing')->name('pricing');
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('/billing/checkout/{plan}', [SubscriptionController::class, 'checkout'])
+        ->name('billing.checkout');
+    Route::post('/billing/portal', [SubscriptionController::class, 'portal'])
+        ->name('billing.portal');
+    Route::livewire('/billing/success', 'pages::billing.success')
+        ->name('billing.success');
+    Route::livewire('/billing/cancel', 'pages::billing.cancel')
+        ->name('billing.cancel');
+});
 
 Route::middleware('auth')->group(function () {
     // Posts
@@ -67,6 +80,19 @@ Route::middleware('auth')->group(function () {
     Route::livewire('/users/{user}/edit', 'pages::users.edit')
         ->middleware('can:manage-users')
         ->name('users.edit');
+
+    // Subscriptions
+    Route::livewire('/subscriptions', 'pages::subscriptions.index')
+        ->middleware('can:manage-subscriptions')
+        ->name('admin-subscriptions.index');
+
+    Route::livewire('/subscriptions/plans', 'pages::subscriptions.plans')
+        ->middleware('can:manage-subscriptions')
+        ->name('admin-subscriptions.plans');
+
+    Route::livewire('/subscriptions/{user}', 'pages::subscriptions.show')
+        ->middleware('can:manage-subscriptions')
+        ->name('admin-subscriptions.show');
 
     // Categories
     Route::livewire('/categories', 'pages::categories.index')

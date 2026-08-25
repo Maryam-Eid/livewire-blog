@@ -16,6 +16,9 @@ new class extends Component {
     #[Validate('required|string|min:10')]
     public string $content = '';
 
+    #[Validate('required|in:all,premium')]
+    public string $audience = 'all';
+
     #[Validate('required|in:now,scheduled')]
     public string $deliveryMode = 'now';
 
@@ -25,7 +28,10 @@ new class extends Component {
     public function with(): array
     {
         return [
-            'verifiedSubscriberCount' => Subscriber::query()->verified()->count(),
+            'recipientCount' => Subscriber::query()
+                ->verified()
+                ->when($this->audience === 'premium', fn ($query) => $query->premium())
+                ->count(),
         ];
     }
 
@@ -39,6 +45,7 @@ new class extends Component {
             'user_id' => auth()->id(),
             'subject' => $this->subject,
             'content' => $this->content,
+            'audience' => $this->audience,
             'status' => 'draft',
         ]);
 
@@ -56,6 +63,7 @@ new class extends Component {
             'user_id' => auth()->id(),
             'subject' => $this->subject,
             'content' => $this->content,
+            'audience' => $this->audience,
             'status' => $this->deliveryMode === 'scheduled' ? 'scheduled' : 'sending',
             'scheduled_at' => $scheduledAt,
         ]);
@@ -93,7 +101,7 @@ new class extends Component {
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900">Create Newsletter</h1>
         <p class="mt-1 text-sm text-gray-600">
-            Compose an email for {{ number_format($verifiedSubscriberCount) }} verified subscribers.
+            Compose an email for {{ number_format($recipientCount) }} eligible subscribers.
         </p>
     </div>
 
@@ -126,6 +134,26 @@ new class extends Component {
                     ></trix-editor>
                 </div>
                 @error('content')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label class="required-label mb-2 block text-sm font-medium text-gray-700">Audience</label>
+                <div class="grid gap-3 sm:grid-cols-2">
+                    <label class="cursor-pointer rounded-lg border border-gray-200 p-4 transition hover:border-indigo-300">
+                        <input type="radio" wire:model.live="audience" value="all" class="text-indigo-600 focus:ring-indigo-500">
+                        <span class="ml-2 font-medium text-gray-900">All verified subscribers</span>
+                        <span class="mt-1 block pl-6 text-sm text-gray-500">Free and Premium readers.</span>
+                    </label>
+                    <label class="cursor-pointer rounded-lg border border-gray-200 p-4 transition hover:border-violet-300">
+                        <input type="radio" wire:model.live="audience" value="premium" class="text-violet-600 focus:ring-violet-500">
+                        <span class="ml-2 font-medium text-gray-900">Premium members only</span>
+                        <span class="mt-1 block pl-6 text-sm text-gray-500">Active paying members.</span>
+                    </label>
+                </div>
+                <p class="mt-2 text-sm text-gray-500">{{ number_format($recipientCount) }} recipients currently match this audience.</p>
+                @error('audience')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>

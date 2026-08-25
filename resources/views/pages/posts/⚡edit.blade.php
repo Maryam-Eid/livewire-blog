@@ -31,6 +31,9 @@ new class extends Component {
     #[Validate('required|in:draft,scheduled,published,archived')]
     public string $status = '';
 
+    #[Validate('boolean')]
+    public bool $isPremium = false;
+
     #[Validate('required_if:status,scheduled|nullable|date_format:Y-m-d H:i')]
     public ?string $scheduledAt = null;
 
@@ -62,6 +65,7 @@ new class extends Component {
         $this->excerpt = $post->excerpt ?? '';
         $this->content = $post->content;
         $this->status = $post->status;
+        $this->isPremium = $post->is_premium;
         $this->scheduledAt = $post->status === 'scheduled'
             ? $post->published_at?->format('Y-m-d H:i')
             : null;
@@ -139,6 +143,7 @@ new class extends Component {
         $this->post->excerpt = $this->excerpt;
         $this->post->content = $this->content;
         $this->post->status = $this->status;
+        $this->post->is_premium = $this->isPremium;
 
         if ($this->featured_image) {
             if ($this->existing_image && ! Str::startsWith($this->existing_image, ['http://', 'https://'])) {
@@ -559,6 +564,22 @@ new class extends Component {
                 @error('status')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
+            </div>
+
+            <!-- Access -->
+            <div>
+                <label class="mb-2 block text-sm font-medium text-gray-700">Reader access</label>
+                <label class="flex cursor-pointer items-start rounded-lg border border-gray-200 p-4 transition hover:border-indigo-300">
+                    <input
+                        type="checkbox"
+                        wire:model="isPremium"
+                        class="mt-1 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    >
+                    <span class="ml-3">
+                        <span class="block text-sm font-medium text-gray-900">Premium article</span>
+                        <span class="block text-sm text-gray-500">Only active Premium members can read the full article.</span>
+                    </span>
+                </label>
             </div>
 
             <!-- Actions -->

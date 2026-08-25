@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Post;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -9,6 +10,9 @@ new class extends Component {
 
     public string $search = '';
     public string $status = 'all';
+
+    #[Url(as: 'access')]
+    public string $accessFilter = 'all';
 
     public function with(): array
     {
@@ -23,6 +27,14 @@ new class extends Component {
 
         if ($this->status !== 'all') {
             $query->where('status', $this->status);
+        }
+
+        if ($this->accessFilter === 'free') {
+            $query->where('is_premium', false);
+        }
+
+        if ($this->accessFilter === 'premium') {
+            $query->where('is_premium', true);
         }
 
         if (auth()->user()->hasRole('author')) {
@@ -40,6 +52,11 @@ new class extends Component {
     }
 
     public function updatingPost(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingAccessFilter(): void
     {
         $this->resetPage();
     }
@@ -69,6 +86,15 @@ new class extends Component {
             <div class="flex-1">
                 <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search posts..."
                        class="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"/>
+            </div>
+
+            <div class="sm:w-48">
+                <select wire:model.live="accessFilter"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="all">All access</option>
+                    <option value="free">Free</option>
+                    <option value="premium">Premium</option>
+                </select>
             </div>
 
             <div class="sm:w-48">
@@ -134,7 +160,15 @@ new class extends Component {
                 @forelse ($posts as $post)
                     <tr wire:key="post-{{ $post->id }}" wire:transition class="hover:bg-gray-50">
                         <td class="px-6 py-4">
-                            <div class="text-sm font-medium text-gray-900">{{ $post->title }}</div>
+                            <div class="flex flex-wrap items-center gap-2 text-sm font-medium text-gray-900">
+                                {{ $post->title }}
+                                @if ($post->is_premium)
+                                    <span class="premium-badge inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 px-2 py-0.5 text-xs font-semibold text-amber-950 shadow-sm shadow-amber-500/40">
+                                        <x-premium-lock />
+                                        Premium
+                                    </span>
+                                @endif
+                            </div>
                             <div class="text-sm text-gray-500">{{ Str::limit($post->excerpt, 50) }}</div>
                             @if($post->comments_count > 0)
                                 <div class="mt-1">

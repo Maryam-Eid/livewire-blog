@@ -43,6 +43,10 @@ class DispatchNewsletter implements ShouldBeUnique, ShouldQueue
         Subscriber::query()
             ->select(['id', 'email', 'token'])
             ->verified()
+            ->when(
+                $newsletter->audience === 'premium',
+                fn ($query) => $query->premium(),
+            )
             ->chunkById(500, function (Collection $subscribers) use ($newsletter): void {
                 $timestamp = now();
                 $deliveries = $subscribers

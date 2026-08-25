@@ -24,6 +24,9 @@ class PostList extends Component
     #[Url(as: 'tag')]
     public string $selectedTag = '';
 
+    #[Url(as: 'access')]
+    public string $accessFilter = 'all';
+
     #[Layout('layouts.public')]
     #[Title('Blog')]
     public function render()
@@ -47,6 +50,8 @@ class PostList extends Component
                     $q->where('slug', $this->selectedTag);
                 });
             })
+            ->when($this->accessFilter === 'free', fn ($query) => $query->where('is_premium', false))
+            ->when($this->accessFilter === 'premium', fn ($query) => $query->where('is_premium', true))
             ->latest('published_at')
             ->paginate(9);
 
@@ -55,6 +60,7 @@ class PostList extends Component
                 'posts' => $posts,
                 'categories' => Category::withCount('posts')->get(),
                 'tags' => Tag::withCount('posts')->get(),
+                'hasPremiumAccess' => auth()->user()?->hasPremiumAccess() ?? false,
             ]);
     }
 
@@ -73,11 +79,17 @@ class PostList extends Component
         $this->resetPage();
     }
 
+    public function updatingAccessFilter(): void
+    {
+        $this->resetPage();
+    }
+
     public function clearFilters(): void
     {
         $this->search = '';
         $this->selectedCategory = '';
         $this->selectedTag = '';
+        $this->accessFilter = 'all';
         $this->resetPage();
     }
 
@@ -90,6 +102,14 @@ class PostList extends Component
     public function selectTag(string $slug = ''): void
     {
         $this->selectedTag = $slug;
+        $this->resetPage();
+    }
+
+    public function selectAccess(string $access = 'all'): void
+    {
+        abort_unless(in_array($access, ['all', 'free', 'premium'], true), 404);
+
+        $this->accessFilter = $access;
         $this->resetPage();
     }
 }

@@ -37,6 +37,12 @@
                     {{ __('Newsletter') }}
                 </flux:sidebar.item>
             @endcan
+            @can('manage-subscriptions')
+                <flux:sidebar.item icon="credit-card" :href="route('admin-subscriptions.index')"
+                                   :current="request()->routeIs('admin-subscriptions.*')" wire:navigate>
+                    {{ __('Subscriptions') }}
+                </flux:sidebar.item>
+            @endcan
             @can('manage-roles')
                 <flux:sidebar.item icon="rectangle-group" :href="route('categories.index')"
                                    :current="request()->routeIs('categories.*')" wire:navigate>
@@ -92,7 +98,7 @@
 
             <flux:menu.radio.group>
                 <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
-                    {{ __('Settings') }}
+                    {{ __('My account') }}
                 </flux:menu.item>
             </flux:menu.radio.group>
 

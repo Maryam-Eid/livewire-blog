@@ -261,3 +261,37 @@ select:focus[data-flux-control] {
 .dark .flatpickr-day.flatpickr-disabled {
     color: var(--color-zinc-600);
 }
+
+[x-cloak] {
+    display: none !important;
+}
+
+.premium-badge {
+    position: relative;
+    overflow: hidden;
+}
+
+.premium-badge::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(105deg, transparent 25%, rgb(255 255 255 / 0.65) 50%, transparent 75%);
+    transform: translateX(-130%);
+    animation: premium-shine 2.6s ease-in-out infinite;
+}
+
+.premium-lock {
+    filter: drop-shadow(0 1px 0 rgb(120 53 15 / 0.28));
+}
+
+@keyframes premium-shine {
+    0%,
+    50% {
+        transform: translateX(-130%);
+    }
+
+    100% {
+        transform: translateX(130%);
+    }
+}

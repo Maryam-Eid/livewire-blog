@@ -48,6 +48,15 @@ class SendNewsletterDelivery implements ShouldBeUnique, ShouldQueue
             return;
         }
 
+        if (
+            $delivery->newsletter->audience === 'premium'
+            && ! ($delivery->subscriber->user?->isPremiumSubscriber() ?? false)
+        ) {
+            $this->recordFailure('The subscriber no longer has an active Premium membership.');
+
+            return;
+        }
+
         Mail::to($delivery->email)->send(
             new NewsletterMail($delivery->newsletter, $delivery)
         );

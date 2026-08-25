@@ -1,15 +1,18 @@
 <?php
 
+use App\Actions\SyncPremiumSubscriber;
 use App\Concerns\ProfileValidationRules;
+use App\Support\UserHome;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Title('Profile settings')] class extends Component {
+new #[Layout('layouts.account')] #[Title('Profile settings')] class extends Component {
     use ProfileValidationRules;
 
     public string $name = '';
@@ -41,6 +44,10 @@ new #[Title('Profile settings')] class extends Component {
 
         $user->save();
 
+        if (filled($user->stripe_id) || $user->subscriber()->exists()) {
+            app(SyncPremiumSubscriber::class)->execute($user);
+        }
+
         Flux::toast(variant: 'success', text: __('Profile updated.'));
     }
 
@@ -52,7 +59,7 @@ new #[Title('Profile settings')] class extends Component {
         $user = Auth::user();
 
         if ($user->hasVerifiedEmail()) {
-            $this->redirectIntended(default: route('dashboard', absolute: false));
+            $this->redirectIntended(default: app(UserHome::class)->path($user));
 
             return;
         }

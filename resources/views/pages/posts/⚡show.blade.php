@@ -19,6 +19,14 @@ class extends Component {
         $this->trackView();
     }
 
+    public function with(): array
+    {
+        return [
+            'canReadPost' => ! $this->post->is_premium
+                || (auth()->user()?->hasPremiumAccess() ?? false),
+        ];
+    }
+
     protected function trackView()
     {
         $this->post->increment('views_count');
@@ -54,6 +62,14 @@ class extends Component {
 
         <!-- Post Header -->
         <header class="mb-8">
+            @if ($post->is_premium)
+                <span class="premium-badge mb-3 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 px-3 py-1 text-sm font-semibold text-amber-950 shadow-sm shadow-amber-500/40">
+                    @unless ($canReadPost)
+                        <x-premium-lock />
+                    @endunless
+                    Premium
+                </span>
+            @endif
             <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
                 {{ $post->title }}
             </h1>
@@ -112,28 +128,51 @@ class extends Component {
         </header>
 
 
-        <!-- Post Content -->
-        <div class="prose prose-lg prose-indigo max-w-none mb-12">
-            {!! $post->content !!}
-        </div>
+        @if ($canReadPost)
+            <!-- Post Content -->
+            <div class="prose prose-lg prose-indigo max-w-none mb-12">
+                {!! $post->content !!}
+            </div>
 
-        <!-- Post Footer -->
-        <footer class="border-t border-gray-200 pt-8">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                    <img
-                        src="https://ui-avatars.com/api/?name={{ urlencode($post->user->name) }}&background=4f46e5&color=fff"
-                        alt="{{ $post->user->name }}" class="w-10 h-10 rounded-full mr-4">
-                    <div>
-                        <p class="font-medium text-gray-900">Written by {{ $post->user->name }}</p>
-                        <p class="text-sm text-gray-600">Published on {{ $post->published_at->format('F d, Y') }}</p>
+            <!-- Post Footer -->
+            <footer class="border-t border-gray-200 pt-8">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <img
+                            src="https://ui-avatars.com/api/?name={{ urlencode($post->user->name) }}&background=4f46e5&color=fff"
+                            alt="{{ $post->user->name }}" class="w-10 h-10 rounded-full mr-4">
+                        <div>
+                            <p class="font-medium text-gray-900">Written by {{ $post->user->name }}</p>
+                            <p class="text-sm text-gray-600">Published on {{ $post->published_at->format('F d, Y') }}</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </footer>
+            </footer>
 
-        {{-- Comment section --}}
-        <livewire:blog.comments :post="$post"/>
+            {{-- Comment section --}}
+            <livewire:blog.comments :post="$post"/>
+        @else
+            <section class="overflow-hidden rounded-2xl border border-violet-200 bg-gradient-to-br from-violet-50 to-indigo-50 p-8 text-center shadow-sm sm:p-12">
+                <span class="premium-badge inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 px-3 py-1 text-sm font-semibold text-amber-950 shadow-sm shadow-amber-500/40">
+                    <x-premium-lock />
+                    Premium article
+                </span>
+                <h2 class="mt-5 text-3xl font-bold text-gray-950">Continue reading with Premium</h2>
+                @if (filled($post->excerpt))
+                    <p class="mx-auto mt-4 max-w-2xl text-lg leading-8 text-gray-600">{{ $post->excerpt }}</p>
+                @endif
+                <div class="mt-7 flex flex-wrap justify-center gap-3">
+                    <a href="{{ route('pricing') }}" wire:navigate class="rounded-lg bg-indigo-600 px-5 py-3 font-semibold text-white hover:bg-indigo-700">
+                        View Premium plans
+                    </a>
+                    @guest
+                        <a href="{{ route('login') }}" class="rounded-lg border border-gray-300 bg-white px-5 py-3 font-semibold text-gray-700 hover:bg-gray-50">
+                            Log in
+                        </a>
+                    @endguest
+                </div>
+            </section>
+        @endif
 
     </article>
 

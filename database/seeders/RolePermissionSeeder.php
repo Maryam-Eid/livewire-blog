@@ -27,6 +27,7 @@ class RolePermissionSeeder extends Seeder
             'manage-users',
             'manage-roles',
             'manage-newsletters',
+            'manage-subscriptions',
         ];
 
         foreach ($permissions as $permission) {

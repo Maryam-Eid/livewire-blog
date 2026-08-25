@@ -14,13 +14,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-#[Fillable(['user_id', 'title', 'slug', 'excerpt', 'content', 'featured_image', 'status', 'published_at', 'views_count'])]
+#[Fillable(['user_id', 'title', 'slug', 'excerpt', 'content', 'featured_image', 'status', 'is_premium', 'published_at', 'views_count'])]
 class Post extends Model
 {
     /** @use HasFactory<PostFactory> */
     use HasFactory;
 
     protected $casts = [
+        'is_premium' => 'boolean',
         'published_at' => 'datetime',
     ];
 

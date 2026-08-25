@@ -3,15 +3,23 @@
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->group(function () {
-    Route::redirect('settings', 'settings/profile');
+    Route::redirect('account', 'account/profile')->name('account');
+    Route::redirect('settings', 'account/profile');
+    Route::redirect('settings/profile', 'account/profile');
+    Route::redirect('settings/security', 'account/security');
+    Route::redirect('settings/billing', 'account/billing');
 
-    Route::livewire('settings/profile', 'pages::settings.profile')->name('profile.edit');
+    Route::livewire('account/profile', 'pages::settings.profile')->name('profile.edit');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::livewire('settings/appearance', 'pages::settings.appearance')->name('appearance.edit');
+    Route::livewire('account/billing', 'pages::settings.billing')->name('billing.edit');
 
-    Route::livewire('settings/security', 'pages::settings.security')
+    Route::livewire('settings/appearance', 'pages::settings.appearance')
+        ->middleware('can:create-post')
+        ->name('appearance.edit');
+
+    Route::livewire('account/security', 'pages::settings.security')
         ->middleware([
             'password.confirm',
         ])

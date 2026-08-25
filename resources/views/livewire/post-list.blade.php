@@ -2,7 +2,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="mb-8">
-            <h1 class="text-4xl font-bold text-gray-900">Latest Posts</h1>
+            <h1 class="text-4xl font-bold text-gray-900">Latest Articles</h1>
             <p class="mt-2 text-lg text-gray-600">Thoughts, ideas, and stories from our team</p>
         </div>
 
@@ -12,8 +12,31 @@
                 <!-- Search -->
                 <div class="mb-6">
                     <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
-                    <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search posts..."
+                    <input type="text" wire:model.live.debounce.300ms="search" placeholder="Search articles..."
                            class="p-2 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"/>
+                </div>
+
+                <!-- Access -->
+                <div class="mb-6">
+                    <h3 class="mb-3 text-sm font-medium text-gray-700">Access</h3>
+                    <div class="grid grid-cols-3 gap-2">
+                        @foreach (['all' => 'All', 'free' => 'Free', 'premium' => 'Premium'] as $access => $label)
+                            <button
+                                type="button"
+                                wire:key="access-{{ $access }}"
+                                wire:click="selectAccess('{{ $access }}')"
+                                @class([
+                                    'cursor-pointer rounded-md px-2 py-2 text-xs font-semibold transition',
+                                    'premium-badge bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-300 text-amber-800 shadow-sm shadow-amber-400/40' => $access === 'premium' && $accessFilter !== 'premium',
+                                    'premium-badge bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 text-amber-950 shadow-sm shadow-amber-500/40' => $access === 'premium' && $accessFilter === 'premium',
+                                    'bg-indigo-600 text-white' => $access !== 'premium' && $accessFilter === $access,
+                                    'bg-gray-100 text-gray-600 hover:bg-indigo-50 hover:text-indigo-700' => $access !== 'premium' && $accessFilter !== $access,
+                                ])
+                            >
+                                {{ $label }}
+                            </button>
+                        @endforeach
+                    </div>
                 </div>
 
                 <!-- Categories -->
@@ -54,7 +77,7 @@
                 </div>
 
                 <!-- Clear Filters -->
-                @if($search || $selectedCategory || $selectedTag)
+                @if($search || $selectedCategory || $selectedTag || $accessFilter !== 'all')
                     <button wire:click="clearFilters"
                             class="cursor-pointer w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-300">
                         Clear Filters
@@ -67,7 +90,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     @forelse($posts as $post)
                         <article wire:key="post-{{ $post->id }}"
-                                 class="group relative flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-100">
+                                 class="group relative flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-100 {{ $post->is_premium && ! $hasPremiumAccess ? 'ring-1 ring-violet-200' : '' }}">
 
                             <!-- Image -->
                             <a href="{{ route('blog.show', $post->slug) }}" wire:navigate class="block relative overflow-hidden">
@@ -90,6 +113,17 @@
                                     <span class="absolute top-3 left-3 inline-flex items-center rounded-full bg-white/90 backdrop-blur px-3 py-1 text-xs font-semibold text-indigo-700 shadow-sm">
                     {{ $category->name }}
                 </span>
+                                @endif
+
+                                @if ($post->is_premium)
+                                    <span class="absolute top-3 right-3">
+                                        <span class="premium-badge inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 px-3 py-1 text-xs font-semibold text-amber-950 shadow-sm shadow-amber-500/40">
+                                            @unless ($hasPremiumAccess)
+                                                <x-premium-lock />
+                                            @endunless
+                                            Premium
+                                        </span>
+                                    </span>
                                 @endif
                             </a>
 

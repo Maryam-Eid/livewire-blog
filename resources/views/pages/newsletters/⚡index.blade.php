@@ -32,6 +32,7 @@ new class extends Component {
             ->latest();
 
         $subscribersQuery = Subscriber::query()
+            ->with('user.subscriptions')
             ->when(
                 $this->subscriberSearch,
                 fn ($query) => $query->where('email', 'like', '%'.$this->subscriberSearch.'%'),
@@ -42,6 +43,7 @@ new class extends Component {
             'stats' => [
                 'subscribers' => Subscriber::query()->count(),
                 'verified_subscribers' => Subscriber::query()->verified()->count(),
+                'premium_subscribers' => Subscriber::query()->verified()->premium()->count(),
                 'sent_campaigns' => Newsletter::query()->where('status', 'sent')->count(),
                 'emails_sent' => NewsletterDelivery::query()->where('status', 'sent')->count(),
                 'failed_emails' => NewsletterDelivery::query()->where('status', 'failed')->count(),
@@ -115,14 +117,18 @@ new class extends Component {
                 </div>
             </div>
 
-            <div class="mt-6 grid grid-cols-2 divide-x divide-gray-200 dark:divide-white/10">
-                <div class="pr-5">
+            <div class="mt-6 grid grid-cols-3 divide-x divide-gray-200 dark:divide-white/10">
+                <div class="pr-3">
                     <p class="text-3xl font-semibold tracking-tight text-gray-950 dark:text-white">{{ number_format($stats['subscribers']) }}</p>
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Total subscribers</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Total</p>
                 </div>
-                <div class="pl-5">
+                <div class="px-3">
                     <p class="text-3xl font-semibold tracking-tight text-emerald-600 dark:text-emerald-400">{{ number_format($stats['verified_subscribers']) }}</p>
                     <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Verified</p>
+                </div>
+                <div class="pl-3">
+                    <p class="text-3xl font-semibold tracking-tight text-violet-600 dark:text-violet-400">{{ number_format($stats['premium_subscribers']) }}</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Premium</p>
                 </div>
             </div>
 
@@ -233,7 +239,12 @@ new class extends Component {
                     @forelse ($newsletters as $newsletter)
                         <tr wire:key="newsletter-{{ $newsletter->id }}" class="hover:bg-gray-50">
                             <td class="px-6 py-4">
-                                <p class="font-medium text-gray-900">{{ $newsletter->subject }}</p>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <p class="font-medium text-gray-900">{{ $newsletter->subject }}</p>
+                                    @if ($newsletter->audience === 'premium')
+                                        <span class="rounded-full bg-violet-100 px-2 py-0.5 text-xs font-semibold text-violet-700">Premium</span>
+                                    @endif
+                                </div>
                                 <p class="mt-1 text-xs text-gray-500">Created by {{ $newsletter->user->name }}</p>
                             </td>
                             <td class="whitespace-nowrap px-6 py-4">
@@ -321,7 +332,14 @@ new class extends Component {
                     <tbody class="divide-y divide-gray-200 bg-white">
                     @forelse ($subscribers as $subscriber)
                         <tr wire:key="subscriber-{{ $subscriber->id }}" class="hover:bg-gray-50">
-                            <td class="px-6 py-4 font-medium text-gray-900">{{ $subscriber->email }}</td>
+                            <td class="px-6 py-4 font-medium text-gray-900">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    {{ $subscriber->email }}
+                                    @if ($subscriber->user?->isPremiumSubscriber())
+                                        <span class="rounded-full bg-violet-100 px-2 py-0.5 text-xs font-semibold text-violet-700">Premium</span>
+                                    @endif
+                                </div>
+                            </td>
                             <td class="whitespace-nowrap px-6 py-4">
                                 <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold {{ $subscriber->is_verified ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
                                     {{ $subscriber->is_verified ? 'Verified' : 'Pending' }}

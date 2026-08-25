@@ -42,6 +42,7 @@ class PostFactory extends Factory
                 'https://picsum.photos/seed/'.fake()->unique()->bothify('????-####').'/1200/630'
             ),
             'status' => 'draft',
+            'is_premium' => fake()->boolean(),
             'published_at' => null,
             'views_count' => rand(500, 2000),
         ];
@@ -66,6 +67,13 @@ class PostFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'status' => 'draft',
             'published_at' => null,
+        ]);
+    }
+
+    public function premium(): static
+    {
+        return $this->state(fn () => [
+            'is_premium' => true,
         ]);
     }
 
