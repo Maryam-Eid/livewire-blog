@@ -136,23 +136,29 @@ new class extends Component {
                         </td>
 
                         <td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
-                            <div class="flex justify-end gap-2">
-                                <a
-                                    href="{{ route('categories.edit', $category) }}"
-                                    wire:navigate
-                                    class="cursor-pointer rounded-md px-2 py-1 text-indigo-600 transition hover:bg-indigo-100 hover:text-indigo-900"
-                                >
-                                    Edit
-                                </a>
+                            <div class="flex items-center justify-end gap-1">
+                                <flux:tooltip content="Edit category" position="top">
+                                    <a
+                                        href="{{ route('categories.edit', $category) }}"
+                                        wire:navigate
+                                        class="inline-flex size-8 items-center justify-center rounded-full text-indigo-600 transition hover:bg-indigo-50 hover:text-indigo-800"
+                                    >
+                                        <flux:icon.pencil-square class="size-5" />
+                                        <span class="sr-only">Edit</span>
+                                    </a>
+                                </flux:tooltip>
 
-                                <button
-                                    type="button"
-                                    wire:click="deleteCategory({{ $category->id }})"
-                                    wire:confirm="Delete this category? It will be removed from its posts."
-                                    class="cursor-pointer rounded-md px-2 py-1 text-red-600 transition hover:bg-red-100 hover:text-red-900"
-                                >
-                                    Delete
-                                </button>
+                                <flux:tooltip content="Delete category" position="top">
+                                    <button
+                                        type="button"
+                                        wire:click="deleteCategory({{ $category->id }})"
+                                        wire:confirm="Delete this category? It will be removed from its posts."
+                                        class="inline-flex size-8 cursor-pointer items-center justify-center rounded-full text-red-500 transition hover:bg-red-50 hover:text-red-700"
+                                    >
+                                        <flux:icon.trash class="size-5" />
+                                        <span class="sr-only">Delete</span>
+                                    </button>
+                                </flux:tooltip>
                             </div>
                         </td>
                     </tr>

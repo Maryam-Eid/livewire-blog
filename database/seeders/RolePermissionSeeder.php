@@ -50,6 +50,7 @@ class RolePermissionSeeder extends Seeder
             'create-post',
             'edit-post',
             'delete-post',
+            'publish-post',
         ]);
 
         Role::findOrCreate('subscriber');

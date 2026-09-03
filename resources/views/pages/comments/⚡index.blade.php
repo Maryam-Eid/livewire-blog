@@ -1,38 +1,47 @@
 <?php
 
+use App\Models\Comment;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\Comment;
+
 new class extends Component
 {
     use WithPagination;
+
     public string $search = '';
+
+    #[Url(as: 'status')]
     public string $statusFilter = 'all';
 
     public function with(): array
     {
-        $query = Comment::with(['user', 'post'])
+        $user = auth()->user();
+        $isAdmin = $user->hasRole('admin') || $user->hasRole('editor');
+
+        $query = Comment::query()
+            ->with(['user', 'post'])
             ->latest();
 
-        if ($this->search) {
-            $query->where('content', 'like', '%' . $this->search . '%')
-                ->orWhereHas('user', function($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%');
-                });
+        if (! $isAdmin) {
+            $query->whereHas('post', fn ($postQuery) => $postQuery->where('user_id', $user->id));
+        }
+
+        if ($this->search !== '') {
+            $query->where(function ($searchQuery): void {
+                $searchQuery
+                    ->where('content', 'like', '%'.$this->search.'%')
+                    ->orWhereHas('user', fn ($userQuery) => $userQuery->where('name', 'like', '%'.$this->search.'%'));
+            });
         }
 
         if ($this->statusFilter !== 'all') {
             $query->where('status', $this->statusFilter);
         }
 
-        if (auth()->user()->hasRole('author')) {
-            $query->whereHas('post', function($q) {
-                $q->where('user_id', auth()->id());
-            });
-        }
-
         return [
             'comments' => $query->paginate(20),
+            'isAdmin' => $isAdmin,
         ];
     }
 
@@ -48,20 +57,34 @@ new class extends Component
 
     public function approveComment(Comment $comment): void
     {
+        $this->authorizeComment($comment);
         $comment->update(['status' => 'approved']);
         session()->flash('success', 'Comment approved!');
     }
 
     public function markAsSpam(Comment $comment): void
     {
+        $this->authorizeComment($comment);
         $comment->update(['status' => 'spam']);
         session()->flash('success', 'Comment marked as spam!');
     }
 
     public function deleteComment(Comment $comment): void
     {
+        $this->authorizeComment($comment);
         $comment->delete();
         session()->flash('success', 'Comment deleted!');
+    }
+
+    private function authorizeComment(Comment $comment): void
+    {
+        $user = auth()->user();
+
+        if ($user->hasRole('admin') || $user->hasRole('editor')) {
+            return;
+        }
+
+        abort_unless($comment->post?->user_id === $user->id, 403);
     }
 };
 ?>
@@ -69,7 +92,9 @@ new class extends Component
 <div>
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900">Comments</h1>
-        <p class="mt-1 text-sm text-gray-600">Moderate and manage post comments</p>
+        <p class="mt-1 text-sm text-gray-600">
+            {{ $isAdmin ? 'Moderate and manage post comments' : 'Comments on your posts' }}
+        </p>
     </div>
 
     <!-- Filters -->
@@ -143,32 +168,55 @@ new class extends Component
                             {{ $comment->created_at->format('M d, Y \a\t g:i A') }}
                         </p>
 
-                        <div class="flex gap-2">
+                        <div class="flex items-center gap-1">
                             @if($comment->status !== 'approved')
-                                <button
-                                    wire:click="approveComment({{ $comment->id }})"
-                                    class="cursor-pointer text-sm rounded-md px-2 py-1 text-green-600 transition hover:bg-green-100 hover:text-green-800"
-                                >
-                                    Approve
-                                </button>
+                                <flux:tooltip content="Approve comment" position="top">
+                                    <button
+                                        type="button"
+                                        wire:click="approveComment({{ $comment->id }})"
+                                        class="inline-flex size-8 cursor-pointer items-center justify-center rounded-full text-green-600 transition hover:bg-green-50 hover:text-green-800"
+                                    >
+                                        <flux:icon.check class="size-5" />
+                                        <span class="sr-only">Approve</span>
+                                    </button>
+                                </flux:tooltip>
                             @endif
 
                             @if($comment->status !== 'spam')
-                                <button
-                                    wire:click="markAsSpam({{ $comment->id }})"
-                                    class="cursor-pointer text-sm rounded-md px-2 py-1 text-red-600 transition hover:bg-red-100 hover:text-red-900"
-                                >
-                                    Mark as Spam
-                                </button>
+                                <flux:tooltip content="Mark as spam" position="top">
+                                    <button
+                                        type="button"
+                                        wire:click="markAsSpam({{ $comment->id }})"
+                                        class="inline-flex size-8 cursor-pointer items-center justify-center rounded-full text-amber-600 transition hover:bg-amber-50 hover:text-amber-800"
+                                    >
+                                        <flux:icon.no-symbol class="size-5" />
+                                        <span class="sr-only">Mark as Spam</span>
+                                    </button>
+                                </flux:tooltip>
                             @endif
 
-                            <button
-                                wire:click="deleteComment({{ $comment->id }})"
-                                wire:confirm="Are you sure you want to delete this comment?"
-                                class="cursor-pointer text-sm rounded-md px-2 py-1 text-red-600 transition hover:bg-red-100 hover:text-red-900"
-                            >
-                                Delete
-                            </button>
+                            <flux:tooltip content="View post" position="top">
+                                <a
+                                    href="{{ route('blog.show', $comment->post->slug) }}"
+                                    target="_blank"
+                                    class="inline-flex size-8 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-900"
+                                >
+                                    <flux:icon.arrow-top-right-on-square class="size-5" />
+                                    <span class="sr-only">View</span>
+                                </a>
+                            </flux:tooltip>
+
+                            <flux:tooltip content="Delete comment" position="top">
+                                <button
+                                    type="button"
+                                    wire:click="deleteComment({{ $comment->id }})"
+                                    wire:confirm="Are you sure you want to delete this comment?"
+                                    class="inline-flex size-8 cursor-pointer items-center justify-center rounded-full text-red-500 transition hover:bg-red-50 hover:text-red-700"
+                                >
+                                    <flux:icon.trash class="size-5" />
+                                    <span class="sr-only">Delete</span>
+                                </button>
+                            </flux:tooltip>
                         </div>
                     </div>
                 </div>

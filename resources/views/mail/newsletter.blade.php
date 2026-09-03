@@ -2,7 +2,7 @@
 <div style="text-align: center; padding: 8px 0 28px;">
     <a href="{{ route('blog.index') }}" style="display: inline-block; text-decoration: none;">
         <img
-            src="{{ $message->embed(public_path('newsletter-logo.png')) }}"
+            src="{{ $message->embed(public_path('newsletter-logo.jpg')) }}"
             alt="{{ config('app.name') }}"
             width="150"
             style="display: block; width: 150px; height: auto; margin: 0 auto 12px;"

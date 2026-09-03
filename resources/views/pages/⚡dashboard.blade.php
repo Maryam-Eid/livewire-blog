@@ -17,15 +17,18 @@ new class extends Component {
         $postsQuery = $isAdmin ? Post::query()
             : Post::where('user_id', $user->id);
 
+        $commentsQuery = $isAdmin
+            ? Comment::query()
+            : Comment::whereHas('post', fn ($query) => $query->where('user_id', $user->id));
+
         // calculate stats
         $stats = [
             'total_posts' => (clone $postsQuery)->count(),
             'published_posts' => (clone $postsQuery)->published()->count(),
             'draft_posts' => (clone $postsQuery)->where('status', 'draft')->count(),
             'total_views' => (clone $postsQuery)->sum('views_count'),
-            'total_comments' => $isAdmin ? Comment::count() : Comment::whereHas('post', function ($q) use ($user) {
-                $q->where('user_id', $user->id);
-            })->count(),
+            'total_comments' => (clone $commentsQuery)->count(),
+            'pending_comments' => (clone $commentsQuery)->where('status', 'pending')->count(),
             'total_users' => $isAdmin ? User::count() : null,
         ];
 
@@ -159,8 +162,8 @@ new class extends Component {
             </div>
             <p class="mt-4 text-sm text-gray-600">Engagement from readers</p>
         </div>
-        <!-- Total Users -->
         @if($isAdmin)
+            <!-- Total Users -->
             <div class="bg-white rounded-lg border border-gray-200 p-6">
                 <div class="flex items-center justify-between">
                     <div>
@@ -176,6 +179,26 @@ new class extends Component {
                     </div>
                 </div>
                 <p class="mt-4 text-sm text-gray-600">Registered authors & readers</p>
+            </div>
+        @else
+            <!-- Pending Comments -->
+            <div class="bg-white rounded-lg border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Pending Comments</p>
+                        <p class="text-3xl font-bold text-gray-900 mt-2">{{ number_format($stats['pending_comments']) }}</p>
+                    </div>
+                    <div class="bg-amber-100 rounded-full p-3">
+                        <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z">
+                            </path>
+                        </svg>
+                    </div>
+                </div>
+                <a href="{{ route('comments.index', ['status' => 'pending']) }}" wire:navigate class="mt-4 inline-flex text-sm font-medium text-amber-700 hover:text-amber-800">
+                    Review pending comments
+                </a>
             </div>
         @endif
     </div>

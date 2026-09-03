@@ -242,7 +242,10 @@ new class extends Component {
                                 <div class="flex flex-wrap items-center gap-2">
                                     <p class="font-medium text-gray-900">{{ $newsletter->subject }}</p>
                                     @if ($newsletter->audience === 'premium')
-                                        <span class="rounded-full bg-violet-100 px-2 py-0.5 text-xs font-semibold text-violet-700">Premium</span>
+                                        <span class="premium-badge inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 px-2 py-0.5 text-xs font-semibold text-amber-950 shadow-sm shadow-amber-500/40">
+                                            <x-premium-lock />
+                                            Premium
+                                        </span>
                                     @endif
                                 </div>
                                 <p class="mt-1 text-xs text-gray-500">Created by {{ $newsletter->user->name }}</p>
@@ -275,21 +278,29 @@ new class extends Component {
                             </td>
                             <td class="whitespace-nowrap px-6 py-4 text-right text-sm">
                                 @if (in_array($newsletter->status, ['draft', 'scheduled'], true))
-                                    <a
-                                        href="{{ route('newsletters.edit', $newsletter) }}"
-                                        wire:navigate
-                                        class="rounded-md px-2 py-1 font-medium text-indigo-600 hover:bg-indigo-100"
-                                    >
-                                        Edit
-                                    </a>
-                                    <button
-                                        type="button"
-                                        wire:click="deleteNewsletter({{ $newsletter->id }})"
-                                        wire:confirm="Delete this newsletter?"
-                                        class="cursor-pointer rounded-md px-2 py-1 font-medium text-red-600 hover:bg-red-100"
-                                    >
-                                        Delete
-                                    </button>
+                                    <div class="flex items-center justify-end gap-1">
+                                        <flux:tooltip content="Edit newsletter" position="top">
+                                            <a
+                                                href="{{ route('newsletters.edit', $newsletter) }}"
+                                                wire:navigate
+                                                class="inline-flex size-8 items-center justify-center rounded-full text-indigo-600 transition hover:bg-indigo-50 hover:text-indigo-800"
+                                            >
+                                                <flux:icon.pencil-square class="size-5" />
+                                                <span class="sr-only">Edit</span>
+                                            </a>
+                                        </flux:tooltip>
+                                        <flux:tooltip content="Delete newsletter" position="top">
+                                            <button
+                                                type="button"
+                                                wire:click="deleteNewsletter({{ $newsletter->id }})"
+                                                wire:confirm="Delete this newsletter?"
+                                                class="inline-flex size-8 cursor-pointer items-center justify-center rounded-full text-red-500 transition hover:bg-red-50 hover:text-red-700"
+                                            >
+                                                <flux:icon.trash class="size-5" />
+                                                <span class="sr-only">Delete</span>
+                                            </button>
+                                        </flux:tooltip>
+                                    </div>
                                 @else
                                     <span class="text-gray-400">Completed</span>
                                 @endif
@@ -349,14 +360,17 @@ new class extends Component {
                                 {{ $subscriber->created_at->format('M d, Y') }}
                             </td>
                             <td class="whitespace-nowrap px-6 py-4 text-right">
-                                <button
-                                    type="button"
-                                    wire:click="deleteSubscriber({{ $subscriber->id }})"
-                                    wire:confirm="Remove this subscriber?"
-                                    class="cursor-pointer rounded-md px-2 py-1 text-sm font-medium text-red-600 hover:bg-red-100"
-                                >
-                                    Remove
-                                </button>
+                                <flux:tooltip content="Remove subscriber" position="top">
+                                    <button
+                                        type="button"
+                                        wire:click="deleteSubscriber({{ $subscriber->id }})"
+                                        wire:confirm="Remove this subscriber?"
+                                        class="inline-flex size-8 cursor-pointer items-center justify-center rounded-full text-red-500 transition hover:bg-red-50 hover:text-red-700"
+                                    >
+                                        <flux:icon.trash class="size-5" />
+                                        <span class="sr-only">Remove</span>
+                                    </button>
+                                </flux:tooltip>
                             </td>
                         </tr>
                     @empty

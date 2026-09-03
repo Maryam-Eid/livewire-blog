@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\User;
+use App\Support\CommentCatalog;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -23,7 +24,7 @@ class CommentFactory extends Factory
             'post_id' => Post::factory()->published(),
             'user_id' => User::factory(),
             'parent_id' => null,
-            'content' => fake()->paragraphs(fake()->numberBetween(1, 3), true),
+            'content' => CommentCatalog::random('approved'),
             'status' => 'approved',
         ];
     }
@@ -35,6 +36,7 @@ class CommentFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'status' => 'pending',
+            'content' => CommentCatalog::random('pending'),
         ]);
     }
 
@@ -45,6 +47,7 @@ class CommentFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'status' => 'spam',
+            'content' => CommentCatalog::random('spam'),
         ]);
     }
 
@@ -56,6 +59,7 @@ class CommentFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'post_id' => $comment->post_id,
             'parent_id' => $comment->id,
+            'content' => CommentCatalog::random('replies'),
         ]);
     }
 }

@@ -118,7 +118,17 @@ new #[Title('Subscriber Details')] class extends Component
                             <td class="px-5 py-4 text-sm capitalize text-gray-700 dark:text-gray-200">{{ $stripeInvoice->status }}</td>
                             <td class="px-5 py-4 text-right">
                                 @if ($stripeInvoice->hosted_invoice_url)
-                                    <a href="{{ $stripeInvoice->hosted_invoice_url }}" target="_blank" rel="noopener" class="text-sm font-medium text-indigo-600 dark:text-indigo-300">View</a>
+                                    <flux:tooltip content="View invoice" position="top">
+                                        <a
+                                            href="{{ $stripeInvoice->hosted_invoice_url }}"
+                                            target="_blank"
+                                            rel="noopener"
+                                            class="inline-flex size-8 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white"
+                                        >
+                                            <flux:icon.arrow-top-right-on-square class="size-5" />
+                                            <span class="sr-only">View</span>
+                                        </a>
+                                    </flux:tooltip>
                                 @endif
                             </td>
                         </tr>

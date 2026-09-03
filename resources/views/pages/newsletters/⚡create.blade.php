@@ -99,7 +99,15 @@ new class extends Component {
 
 <div>
     <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Create Newsletter</h1>
+        <div class="flex flex-wrap items-center gap-3">
+            <h1 class="text-2xl font-bold text-gray-900">Create Newsletter</h1>
+            @if ($audience === 'premium')
+                <span class="premium-badge inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 px-2.5 py-1 text-xs font-semibold text-amber-950 shadow-sm shadow-amber-500/40">
+                    <x-premium-lock />
+                    Premium
+                </span>
+            @endif
+        </div>
         <p class="mt-1 text-sm text-gray-600">
             Compose an email for {{ number_format($recipientCount) }} eligible subscribers.
         </p>
@@ -141,14 +149,30 @@ new class extends Component {
             <div>
                 <label class="required-label mb-2 block text-sm font-medium text-gray-700">Audience</label>
                 <div class="grid gap-3 sm:grid-cols-2">
-                    <label class="cursor-pointer rounded-lg border border-gray-200 p-4 transition hover:border-indigo-300">
+                    <label @class([
+                        'cursor-pointer rounded-lg border p-4 transition',
+                        'border-indigo-300 bg-indigo-50/50 hover:border-indigo-400' => $audience === 'all',
+                        'border-gray-200 hover:border-indigo-300' => $audience !== 'all',
+                    ])>
                         <input type="radio" wire:model.live="audience" value="all" class="text-indigo-600 focus:ring-indigo-500">
                         <span class="ml-2 font-medium text-gray-900">All verified subscribers</span>
                         <span class="mt-1 block pl-6 text-sm text-gray-500">Free and Premium readers.</span>
                     </label>
-                    <label class="cursor-pointer rounded-lg border border-gray-200 p-4 transition hover:border-violet-300">
-                        <input type="radio" wire:model.live="audience" value="premium" class="text-violet-600 focus:ring-violet-500">
-                        <span class="ml-2 font-medium text-gray-900">Premium members only</span>
+                    <label @class([
+                        'cursor-pointer rounded-lg border p-4 transition',
+                        'border-amber-300 bg-amber-50/60 hover:border-amber-400' => $audience === 'premium',
+                        'border-gray-200 hover:border-amber-300' => $audience !== 'premium',
+                    ])>
+                        <input type="radio" wire:model.live="audience" value="premium" class="text-amber-500 focus:ring-amber-400">
+                        <span class="ml-2 inline-flex flex-wrap items-center gap-2 font-medium text-gray-900">
+                            Premium members only
+                            @if ($audience === 'premium')
+                                <span class="premium-badge inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 px-2 py-0.5 text-xs font-semibold text-amber-950 shadow-sm shadow-amber-500/40">
+                                    <x-premium-lock />
+                                    Premium
+                                </span>
+                            @endif
+                        </span>
                         <span class="mt-1 block pl-6 text-sm text-gray-500">Active paying members.</span>
                     </label>
                 </div>

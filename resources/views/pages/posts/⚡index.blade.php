@@ -20,9 +20,13 @@ new class extends Component {
             ->withCount('comments')
             ->latest();
 
-        if ($this->search) {
-            $query->where('title', 'like', '%' . $this->search . '$')
-                ->orWhere('content', 'like', '%' . $this->search . '$');
+        if ($this->search !== '') {
+            $query->where(function ($searchQuery): void {
+                $searchQuery
+                    ->where('title', 'like', '%'.$this->search.'%')
+                    ->orWhere('content', 'like', '%'.$this->search.'%')
+                    ->orWhere('excerpt', 'like', '%'.$this->search.'%');
+            });
         }
 
         if ($this->status !== 'all') {
@@ -51,7 +55,7 @@ new class extends Component {
         $this->resetPage();
     }
 
-    public function updatingPost(): void
+    public function updatingStatus(): void
     {
         $this->resetPage();
     }
@@ -184,11 +188,11 @@ new class extends Component {
                                 </div>
                             @endif
                         </td>
-                        <td class="px-6 py-4">
-                            <div class="flex flex-wrap gap-1">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex flex-nowrap items-center gap-1">
                                 @forelse($post->categories as $category)
                                     <span
-                                        class="px-2 py-1 text-xs font-semibold rounded-full text-white"
+                                        class="whitespace-nowrap px-2 py-1 text-xs font-semibold rounded-full text-white"
                                         style="background-color: {{ $category->color }}"
                                     >
                                             {{ $category->name }}
@@ -220,24 +224,42 @@ new class extends Component {
                             {{ $post->created_at->format('M d, Y') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div class="flex justify-end gap-2">
+                            <div class="flex justify-end items-center gap-1">
+                                @if ($post->status === 'published')
+                                    <flux:tooltip content="View post" position="top">
+                                        <a href="{{ route('blog.show', $post->slug) }}"
+                                           target="_blank"
+                                           class="inline-flex size-8 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 hover:text-gray-900">
+                                            <flux:icon.arrow-top-right-on-square class="size-5" />
+                                            <span class="sr-only">View</span>
+                                        </a>
+                                    </flux:tooltip>
+                                @endif
+
                                 @if(auth()->user()->can('edit-any-post') ||
                                     (auth()->user()->can('edit-post') && $post->user_id === auth()->id()))
-                                    <a href="{{ route('posts.edit', $post) }}"
-                                       class="cursor-pointer rounded-md px-2 py-1 text-indigo-600 transition hover:bg-indigo-100 hover:text-indigo-900">
-                                        Edit
-                                    </a>
+                                    <flux:tooltip content="Edit post" position="top">
+                                        <a href="{{ route('posts.edit', $post) }}"
+                                           class="inline-flex size-8 items-center justify-center rounded-full text-indigo-600 transition hover:bg-indigo-50 hover:text-indigo-800">
+                                            <flux:icon.pencil-square class="size-5" />
+                                            <span class="sr-only">Edit</span>
+                                        </a>
+                                    </flux:tooltip>
                                 @endif
 
                                 @if(auth()->user()->can('delete-any-post') ||
                                     (auth()->user()->can('delete-post') && $post->user_id === auth()->id()))
-                                    <button
-                                        wire:click="deletePost({{ $post->id }})"
-                                        wire:confirm="Are you sure you want to delete this post?"
-                                        class="cursor-pointer rounded-md px-2 py-1 text-red-600 transition hover:bg-red-100 hover:text-red-900"
-                                    >
-                                        Delete
-                                    </button>
+                                    <flux:tooltip content="Delete post" position="top">
+                                        <button
+                                            type="button"
+                                            wire:click="deletePost({{ $post->id }})"
+                                            wire:confirm="Are you sure you want to delete this post?"
+                                            class="inline-flex size-8 cursor-pointer items-center justify-center rounded-full text-red-500 transition hover:bg-red-50 hover:text-red-700"
+                                        >
+                                            <flux:icon.trash class="size-5" />
+                                            <span class="sr-only">Delete</span>
+                                        </button>
+                                    </flux:tooltip>
                                 @endif
                             </div>
                         </td>

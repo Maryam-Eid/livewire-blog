@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Post;
 use App\Models\User;
+use App\Support\PostCatalog;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -20,27 +21,16 @@ class PostFactory extends Factory
      */
     public function definition(): array
     {
-        $title = fake()->sentence();
+        $catalogPost = PostCatalog::data()['posts'][fake()->numberBetween(0, 59)];
+        $title = $catalogPost['title'];
 
         return [
             'user_id' => User::factory(),
             'title' => $title,
             'slug' => Str::slug($title).'-'.fake()->unique()->numerify('####'),
-            'excerpt' => fake()->paragraph(),
-            'content' => collect(fake()->paragraphs(10))
-                ->map(function (string $paragraph, int $index): string {
-                    return match ($index) {
-                        1 => '<p><strong>'.e($paragraph).'</strong></p>',
-                        3 => '<h2>'.e(fake()->sentence()).'</h2><p>'.e($paragraph).'</p>',
-                        5 => '<p>'.e($paragraph).' <a href="'.e(fake()->url()).'" target="_blank">Read more</a></p>',
-                        7 => '<blockquote>'.e($paragraph).'</blockquote>',
-                        default => '<p>'.e($paragraph).'</p>',
-                    };
-                })
-                ->implode(''),
-            'featured_image' => fake()->optional(0.8)->passthrough(
-                'https://picsum.photos/seed/'.fake()->unique()->bothify('????-####').'/1200/630'
-            ),
+            'excerpt' => $catalogPost['excerpt'],
+            'content' => PostCatalog::buildContent($catalogPost['blocks']),
+            'featured_image' => PostCatalog::featuredImageForIndex(fake()->numberBetween(0, 19)),
             'status' => 'draft',
             'is_premium' => fake()->boolean(),
             'published_at' => null,

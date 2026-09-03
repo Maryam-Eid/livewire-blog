@@ -24,6 +24,10 @@
                                    :current="request()->routeIs('posts.*')" wire:navigate>
                     {{ __('Posts') }}
                 </flux:sidebar.item>
+                <flux:sidebar.item icon="chat-bubble-left-right" :href="route('comments.index')"
+                                   :current="request()->routeIs('comments.*')" wire:navigate>
+                    {{ __('Comments') }}
+                </flux:sidebar.item>
             @endcan
             @can('manage-users')
                 <flux:sidebar.item icon="user-group" :href="route('users.index')"
@@ -51,10 +55,6 @@
                 <flux:sidebar.item icon="tag" :href="route('tags.index')"
                                    :current="request()->routeIs('tags.*')" wire:navigate>
                     {{ __('Tags') }}
-                </flux:sidebar.item>
-                <flux:sidebar.item icon="chat-bubble-left-right" :href="route('comments.index')"
-                                   :current="request()->routeIs('comments.*')" wire:navigate>
-                    {{ __('Comments') }}
                 </flux:sidebar.item>
             @endcan
         </flux:sidebar.group>

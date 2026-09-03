@@ -55,7 +55,7 @@ class StartPremiumCheckout
                 ->newSubscription('premium', $subscriptionPlan->stripe_price_id)
                 ->allowPromotionCodes()
                 ->checkout([
-                    'success_url' => route('billing.success'),
+                    'success_url' => route('billing.success').'?session_id={CHECKOUT_SESSION_ID}',
                     'cancel_url' => route('billing.cancel'),
                 ]);
         } catch (InvalidRequestException $exception) {

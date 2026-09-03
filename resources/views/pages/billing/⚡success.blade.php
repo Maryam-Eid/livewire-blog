@@ -1,13 +1,25 @@
 <?php
 
+use App\Actions\SyncPremiumSubscriptionFromCheckout;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
 new #[Layout('layouts.public')] #[Title('Premium Membership')] class extends Component
 {
+    public function mount(SyncPremiumSubscriptionFromCheckout $syncPremiumSubscriptionFromCheckout): void
+    {
+        $sessionId = request()->string('session_id')->toString();
+
+        if ($sessionId !== '') {
+            $syncPremiumSubscriptionFromCheckout->execute(auth()->user(), $sessionId);
+        }
+    }
+
     public function with(): array
     {
+        auth()->user()?->load('subscriptions');
+
         return [
             'hasPremium' => auth()->user()->isPremiumSubscriber(),
         ];

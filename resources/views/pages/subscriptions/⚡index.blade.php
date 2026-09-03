@@ -74,6 +74,7 @@ new #[Title('Subscriptions')] class extends Component
 
         $subscriptions = Subscription::query()
             ->with('user')
+            ->orderBy('subscriptions.id', 'desc')
             ->where('type', 'premium')
             ->when($this->search !== '', function ($query): void {
                 $query->whereIn(
@@ -90,8 +91,7 @@ new #[Title('Subscriptions')] class extends Component
             ->when($this->status === 'active', fn ($query) => $query->active()->whereNull('ends_at'))
             ->when($this->status === 'grace', fn ($query) => $query->onGracePeriod())
             ->when($this->status === 'past_due', fn ($query) => $query->where('stripe_status', 'past_due'))
-            ->when($this->status === 'ended', fn ($query) => $query->whereNotNull('ends_at')->where('ends_at', '<=', now()))
-            ->latest();
+            ->when($this->status === 'ended', fn ($query) => $query->whereNotNull('ends_at')->where('ends_at', '<=', now()));
 
         return [
             'subscriptions' => $subscriptions->paginate(15),

@@ -199,7 +199,15 @@ new class extends Component {
 
 <div>
     <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Edit Post</h1>
+        <div class="flex flex-wrap items-center gap-3">
+            <h1 class="text-2xl font-bold text-gray-900">Edit Post</h1>
+            @if ($isPremium)
+                <span class="premium-badge inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 px-2.5 py-1 text-xs font-semibold text-amber-950 shadow-sm shadow-amber-500/40">
+                    <x-premium-lock />
+                    Premium
+                </span>
+            @endif
+        </div>
         <p class="mt-1 text-sm text-gray-600">Update your blog post</p>
     </div>
 
@@ -569,15 +577,27 @@ new class extends Component {
             <!-- Access -->
             <div>
                 <label class="mb-2 block text-sm font-medium text-gray-700">Reader access</label>
-                <label class="flex cursor-pointer items-start rounded-lg border border-gray-200 p-4 transition hover:border-indigo-300">
+                <label @class([
+                    'flex cursor-pointer items-start rounded-lg border p-4 transition',
+                    'border-amber-300 bg-amber-50/60 hover:border-amber-400' => $isPremium,
+                    'border-gray-200 hover:border-indigo-300' => ! $isPremium,
+                ])>
                     <input
                         type="checkbox"
-                        wire:model="isPremium"
-                        class="mt-1 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                        wire:model.live="isPremium"
+                        class="mt-1 h-4 w-4 rounded border-gray-300 text-amber-500 focus:ring-amber-400"
                     >
-                    <span class="ml-3">
-                        <span class="block text-sm font-medium text-gray-900">Premium article</span>
-                        <span class="block text-sm text-gray-500">Only active Premium members can read the full article.</span>
+                    <span class="ml-3 flex-1">
+                        <span class="flex flex-wrap items-center gap-2">
+                            <span class="block text-sm font-medium text-gray-900">Premium article</span>
+                            @if ($isPremium)
+                                <span class="premium-badge inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-500 px-2 py-0.5 text-xs font-semibold text-amber-950 shadow-sm shadow-amber-500/40">
+                                    <x-premium-lock />
+                                    Premium
+                                </span>
+                            @endif
+                        </span>
+                        <span class="mt-1 block text-sm text-gray-500">Only active Premium members can read the full article.</span>
                     </span>
                 </label>
             </div>
