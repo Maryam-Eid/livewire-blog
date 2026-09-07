@@ -23,4 +23,5 @@ yarn-error.log
 /.vscode
 /.zed
 .cursor
+.ai
 AGENTS.md
