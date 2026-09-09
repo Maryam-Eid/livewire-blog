@@ -60,6 +60,25 @@ Mobile API for Mind Whispers. Send `Accept: application/json` on every request.
 3. After **Register**, a verification email is sent. `email_verified_at` stays `null` until the user opens the link (the same website verification link as web signup).
 4. On **Login**, send `remember: true` to keep the session for 30 days. Without it, the token expires after 24 hours. Use `expires_at` to know when to ask the user to sign in again.
 5. On **Logout**, send the Bearer token and the same `device_name` to revoke that device's session.
+
+## Roles
+
+Same permissions as the website. `GET /auth/me` returns `roles`. Staff (`create-post`) can read premium content without a subscription.
+
+- **Guest** — `GET /posts`, `GET /posts/{id}` (published only). Premium `content` is `null`.
+- **Registered user** — no post permissions. Same as guest. Premium `content` only with an active Premium subscription (`hasPremiumAccess`). Register does not assign a role.
+- **Author** — `create-post`, `edit-post`, `delete-post`, `publish-post`. Create/publish/unpublish **own** posts. `GET /posts/manage` is own posts only. Cannot edit someone else's post.
+- **Editor** — `create-post`, `edit-any-post`, `delete-any-post`, `publish-post`. `GET /posts/manage` is **all** authors and statuses; can edit/publish/unpublish any post.
+- **Admin** — all permissions, including `manage-users`, `manage-roles`, `manage-newsletters`, `manage-subscriptions`. For posts, same as editor.
+
+`publish-post` is required to set status to `scheduled`, `published`, or `archived`. `status: draft` unpublishes.
+
+## Posts
+
+- `GET /posts` is the public published feed (web `/blog`).
+- `GET /posts/manage` is the staff list (web `/posts`): authors see only their posts; editors/admins see all.
+- `GET /posts/{id}` is public detail. Premium `content` is `null` unless the user has premium access.
+- `POST /posts` and `PATCH /posts/{id}` follow the permissions above.
 MD,
     ],
 

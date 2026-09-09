@@ -52,7 +52,5 @@ class RolePermissionSeeder extends Seeder
             'delete-post',
             'publish-post',
         ]);
-
-        Role::findOrCreate('subscriber');
     }
 }

@@ -1,15 +1,14 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Api;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @mixin User
  */
-class UserResource extends JsonResource
+class UserResource extends Resource
 {
     /**
      * @return array<string, mixed>

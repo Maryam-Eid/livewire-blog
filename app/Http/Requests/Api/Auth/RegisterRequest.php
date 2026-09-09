@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Api;
+namespace App\Http\Requests\Api\Auth;
 
 use App\Concerns\PasswordValidationRules;
 use App\Concerns\ProfileValidationRules;

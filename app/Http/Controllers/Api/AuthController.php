@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Actions\Fortify\CreateNewUser;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\LoginRequest;
-use App\Http\Requests\Api\LogoutRequest;
-use App\Http\Requests\Api\RegisterRequest;
-use App\Http\Resources\UserResource;
+use App\Http\Requests\Api\Auth\LoginRequest;
+use App\Http\Requests\Api\Auth\LogoutRequest;
+use App\Http\Requests\Api\Auth\RegisterRequest;
+use App\Http\Resources\Api\UserResource;
 use App\Models\User;
 use DateTimeInterface;
 use Dedoc\Scramble\Attributes\Endpoint;

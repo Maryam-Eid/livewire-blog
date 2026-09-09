@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\OptionalSanctumAuth;
 use App\Http\Middleware\UpgradeToHttpsUnderNgrok;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -15,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append(UpgradeToHttpsUnderNgrok::class);
+        $middleware->api(prepend: [
+            OptionalSanctumAuth::class,
+        ]);
         $middleware->preventRequestForgery(except: [
             'stripe/*',
         ]);
