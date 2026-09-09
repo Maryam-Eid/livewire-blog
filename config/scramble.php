@@ -77,7 +77,7 @@ Same permissions as the website. `GET /auth/me` returns `roles`. Staff (`create-
 
 - `GET /posts` is the public published feed (web `/blog`).
 - `GET /posts/manage` is the staff list (web `/posts`): authors see only their posts; editors/admins see all.
-- `GET /posts/{id}` is public detail. Premium `content` is `null` unless the user has premium access.
+- `GET /posts/{id}` is public detail. Premium `content` is `null` unless the user has premium access. Approved comments are paginated (`comments.data`, `?page=`).
 - `POST /posts` and `PATCH /posts/{id}` follow the permissions above.
 
 ## Categories
