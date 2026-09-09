@@ -19,6 +19,15 @@ class TagResource extends Resource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
+            'posts_count' => $this->whenCounted('posts'),
+            'created_at' => $this->when(
+                $request->routeIs('api.tags.*'),
+                $this->created_at,
+            ),
+            'updated_at' => $this->when(
+                $request->routeIs('api.tags.*'),
+                $this->updated_at,
+            ),
         ];
     }
 }

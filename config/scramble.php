@@ -65,7 +65,7 @@ Mobile API for Mind Whispers. Send `Accept: application/json` on every request.
 
 Same permissions as the website. `GET /auth/me` returns `roles`. Staff (`create-post`) can read premium content without a subscription.
 
-- **Guest** — `GET /posts`, `GET /posts/{id}` (published only), `GET /categories`. Premium `content` is `null`.
+- **Guest** — `GET /posts`, `GET /posts/{id}` (published only), `GET /categories`, `GET /tags`. Premium `content` is `null`.
 - **Registered user** — no post permissions. Same as guest. Premium `content` only with an active Premium subscription (`hasPremiumAccess`). Register does not assign a role.
 - **Author** — `create-post`, `edit-post`, `delete-post`, `publish-post`. Create/publish/unpublish **own** posts. `GET /posts/manage` is own posts only. Cannot edit someone else's post.
 - **Editor** — `create-post`, `edit-any-post`, `delete-any-post`, `publish-post`. `GET /posts/manage` is **all** authors and statuses; can edit/publish/unpublish any post.
@@ -86,6 +86,13 @@ Same as the website `/categories` screens.
 
 - `GET /categories` is public (for post filters). Search with `q`. `posts_count` is published posts only.
 - `POST /categories`, `PATCH /categories/{id}`, `DELETE /categories/{id}` — `manage-roles` (admin). Delete detaches the category from posts first.
+
+## Tags
+
+Same pattern as categories. Website `/tags` screens for write.
+
+- `GET /tags` is public (for post filters). Search with `q` on name. `posts_count` is published posts only.
+- `POST /tags`, `PATCH /tags/{id}`, `DELETE /tags/{id}` — `manage-roles` (admin). Delete detaches the tag from posts first.
 MD,
     ],
 

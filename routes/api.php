@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\PostController;
+use App\Http\Controllers\Api\TagController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/auth/register', [AuthController::class, 'register'])
@@ -13,6 +14,7 @@ Route::post('/auth/login', [AuthController::class, 'login'])
 
 Route::get('/posts', [PostController::class, 'index'])->name('api.posts.index');
 Route::get('/categories', [CategoryController::class, 'index'])->name('api.categories.index');
+Route::get('/tags', [TagController::class, 'index'])->name('api.tags.index');
 
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::get('/auth/me', [AuthController::class, 'me']);
@@ -40,6 +42,18 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])
         ->middleware('can:manage-roles')
         ->name('api.categories.destroy');
+
+    Route::post('/tags', [TagController::class, 'store'])
+        ->middleware('can:manage-roles')
+        ->name('api.tags.store');
+
+    Route::patch('/tags/{tag}', [TagController::class, 'update'])
+        ->middleware('can:manage-roles')
+        ->name('api.tags.update');
+
+    Route::delete('/tags/{tag}', [TagController::class, 'destroy'])
+        ->middleware('can:manage-roles')
+        ->name('api.tags.destroy');
 });
 
 Route::get('/posts/{post}', [PostController::class, 'show'])->name('api.posts.show');
