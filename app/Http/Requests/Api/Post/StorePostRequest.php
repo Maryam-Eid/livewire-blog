@@ -26,7 +26,6 @@ class StorePostRequest extends FormRequest
 
     public function withValidator(Validator $validator): void
     {
-        $this->ensureUniqueTitleSlug($validator);
         $this->ensureCanPublish($validator);
     }
 }

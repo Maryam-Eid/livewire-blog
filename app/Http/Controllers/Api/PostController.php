@@ -87,7 +87,7 @@ class PostController extends Controller
 
     #[Endpoint(
         title: 'Create post',
-        description: 'Requires `create-post`. Publishing or scheduling also requires `publish-post`. At least one category is required. `featured_image` can be an image upload (multipart) or a URL, same 2MB limit as the web form.',
+        description: 'Requires `create-post`. Publishing or scheduling also requires `publish-post`. At least one category is required. `featured_image` is an image upload, max 2MB, same as the web form.',
     )]
     public function store(StorePostRequest $request): JsonResponse
     {
