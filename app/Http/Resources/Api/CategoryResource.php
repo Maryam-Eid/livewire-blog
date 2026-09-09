@@ -19,7 +19,20 @@ class CategoryResource extends Resource
             'id' => $this->id,
             'name' => $this->name,
             'slug' => $this->slug,
+            'description' => $this->when(
+                $request->routeIs('api.categories.*'),
+                $this->description,
+            ),
             'color' => $this->color,
+            'posts_count' => $this->whenCounted('posts'),
+            'created_at' => $this->when(
+                $request->routeIs('api.categories.*'),
+                $this->created_at,
+            ),
+            'updated_at' => $this->when(
+                $request->routeIs('api.categories.*'),
+                $this->updated_at,
+            ),
         ];
     }
 }
