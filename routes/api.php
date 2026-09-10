@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\TagController;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +32,9 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::patch('/posts/{post}', [PostController::class, 'update'])
         ->name('api.posts.update');
 
+    Route::post('/posts/{post}/comments', [CommentController::class, 'store'])
+        ->name('api.posts.comments.store');
+
     Route::post('/categories', [CategoryController::class, 'store'])
         ->middleware('can:manage-roles')
         ->name('api.categories.store');
@@ -56,4 +60,6 @@ Route::middleware('auth:sanctum')->group(function (): void {
         ->name('api.tags.destroy');
 });
 
+Route::get('/posts/{post}/comments', [CommentController::class, 'index'])
+    ->name('api.posts.comments.index');
 Route::get('/posts/{post}', [PostController::class, 'show'])->name('api.posts.show');

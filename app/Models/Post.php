@@ -128,6 +128,12 @@ class Post extends Model
             && ($user->can('edit-any-post') || ($user->can('edit-post') && $this->user_id === $user->id));
     }
 
+    public function canBeReadBy(?User $user): bool
+    {
+        return ! $this->is_premium
+            || ($user?->hasPremiumAccess() ?? false);
+    }
+
     public function featuredImageUrl(): ?string
     {
         if (blank($this->featured_image)) {

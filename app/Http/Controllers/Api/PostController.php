@@ -13,7 +13,6 @@ use App\Models\User;
 use App\Support\PostPublication;
 use Dedoc\Scramble\Attributes\Endpoint;
 use Dedoc\Scramble\Attributes\Group;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -64,7 +63,7 @@ class PostController extends Controller
 
     #[Endpoint(
         title: 'Post detail',
-        description: 'Published post by id. Drafts and scheduled posts return 404 unless the user can edit that post. Send a Bearer token to unlock premium `content` (active Premium subscription or `create-post`). Approved top-level comments are paginated (`page`, 10 per page) with nested approved replies.',
+        description: 'Published post by id. Drafts and scheduled posts return 404 unless the user can edit that post. Send a Bearer token to unlock premium `content` (active Premium subscription or `create-post`). Comments are `GET /posts/{id}/comments`.',
     )]
     public function show(Request $request, Post $post): PostResource
     {
@@ -79,8 +78,6 @@ class PostController extends Controller
                 'viewed_at' => now(),
             ]);
         }
-
-        $post->setRelation('comments', $this->paginatedComments($post));
 
         return $this->resource($post);
     }
@@ -144,19 +141,6 @@ class PostController extends Controller
         }
 
         return $this->resource($post);
-    }
-
-    private function paginatedComments(Post $post): LengthAwarePaginator
-    {
-        return $post->comments()
-            ->approved()
-            ->topLevel()
-            ->with([
-                'user',
-                'replies' => fn ($query) => $query->approved()->with('user')->oldest(),
-            ])
-            ->latest()
-            ->paginate(10);
     }
 
     private function posts(): Builder
