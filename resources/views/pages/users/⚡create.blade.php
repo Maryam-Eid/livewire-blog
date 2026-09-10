@@ -4,7 +4,6 @@ use Livewire\Component;
 use Livewire\Attributes\Validate;
 use Spatie\Permission\Models\Role;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 
 new class extends Component {
     #[Validate('required|string|max:255')]
@@ -13,8 +12,11 @@ new class extends Component {
     #[Validate('required|string|email|max:255|unique:users')]
     public string $email = '';
 
-    #[Validate('required|string|min:8')]
+    #[Validate('required|string|min:8|confirmed')]
     public string $password = '';
+
+    #[Validate('required|string')]
+    public string $password_confirmation = '';
 
     #[Validate('required|array|min:1')]
     public array $selectedRoles = [];
@@ -35,7 +37,7 @@ new class extends Component {
         $user = User::create([
             'name' => $this->name,
             'email' => $this->email,
-            'password' => Hash::make($this->password),
+            'password' => $this->password,
         ]);
 
         $user->assignRole($this->selectedRoles);
@@ -145,6 +147,65 @@ new class extends Component {
                 </div>
 
                 @error('password')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="password_confirmation" class="required-label block text-sm font-medium text-gray-700">
+                    Confirm password
+                </label>
+
+                <div x-data="{ showPassword: false }" class="relative mt-1">
+                    <input
+                        id="password_confirmation"
+                        x-bind:type="showPassword ? 'text' : 'password'"
+                        wire:model="password_confirmation"
+                        autocomplete="new-password"
+                        placeholder="Re-enter password"
+                        class="block w-full rounded-md border-gray-300 p-2 pr-12 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    >
+
+                    <button
+                        type="button"
+                        x-on:click="showPassword = !showPassword"
+                        x-bind:aria-label="showPassword ? 'Hide password' : 'Show password'"
+                        x-bind:title="showPassword ? 'Hide password' : 'Show password'"
+                        class="cursor-pointer absolute inset-y-0 right-0 my-auto mr-2 flex h-8 w-8 items-center justify-center rounded-md text-gray-400 transition hover:bg-indigo-50 hover:text-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                        <svg
+                            x-show="!showPassword"
+                            class="h-5 w-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm6 0c-1.4 4-4.7 6-9 6s-7.6-2-9-6c1.4-4 4.7-6 9-6s7.6 2 9 6z"
+                            />
+                        </svg>
+
+                        <svg
+                            x-show="showPassword"
+                            class="h-5 w-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.3 0-7.6-2-9-6a10.4 10.4 0 012.6-3.8M9.88 9.88A3 3 0 0012 15a3 3 0 002.12-5.12M3 3l18 18M14.12 14.12L9.88 9.88M6.7 6.7A9.9 9.9 0 0112 5c4.3 0 7.6 2 9 6a10.2 10.2 0 01-1.5 2.7"
+                            />
+                        </svg>
+                    </button>
+                </div>
+
+                @error('password_confirmation')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>

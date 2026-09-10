@@ -4,7 +4,9 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\PostController;
+use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\TagController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/auth/register', [AuthController::class, 'register'])
@@ -58,6 +60,30 @@ Route::middleware('auth:sanctum')->group(function (): void {
     Route::delete('/tags/{tag}', [TagController::class, 'destroy'])
         ->middleware('can:manage-roles')
         ->name('api.tags.destroy');
+
+    Route::get('/users', [UserController::class, 'index'])
+        ->middleware('can:manage-users')
+        ->name('api.users.index');
+
+    Route::post('/users', [UserController::class, 'store'])
+        ->middleware('can:manage-users')
+        ->name('api.users.store');
+
+    Route::get('/users/{user}', [UserController::class, 'show'])
+        ->middleware('can:manage-users')
+        ->name('api.users.show');
+
+    Route::patch('/users/{user}', [UserController::class, 'update'])
+        ->middleware('can:manage-users')
+        ->name('api.users.update');
+
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])
+        ->middleware('can:manage-users')
+        ->name('api.users.destroy');
+
+    Route::get('/roles', [RoleController::class, 'index'])
+        ->middleware('can:manage-users')
+        ->name('api.roles.index');
 });
 
 Route::get('/posts/{post}/comments', [CommentController::class, 'index'])

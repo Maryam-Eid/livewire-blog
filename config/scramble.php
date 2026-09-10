@@ -94,6 +94,14 @@ Same pattern as categories. Website `/tags` screens for write.
 
 - `GET /tags` is public (for post filters). Search with `q` on name. `posts_count` is published posts only.
 - `POST /tags`, `PATCH /tags/{id}`, `DELETE /tags/{id}` — `manage-roles` (admin). Delete detaches the tag from posts first.
+
+## Users
+
+Same as the website `/users` screens. Requires `manage-users` (admin).
+
+- `GET /users` — list, `q` (name/email), `role` (`all` or a role name).
+- `POST /users`, `GET /users/{id}`, `PATCH /users/{id}`, `DELETE /users/{id}`. Cannot delete yourself. Password requires `password_confirmation` (optional on PATCH unless `password` is sent).
+- `GET /roles` — role names for the filter and create/edit checkboxes.
 MD,
     ],
 
