@@ -15,6 +15,13 @@ Route::post('/auth/register', [AuthController::class, 'register'])
 Route::post('/auth/login', [AuthController::class, 'login'])
     ->middleware('throttle:login');
 
+Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword'])
+    ->middleware('throttle:api-forgot-password')
+    ->name('api.auth.forgot-password');
+
+Route::post('/auth/reset-password', [AuthController::class, 'resetPassword'])
+    ->name('api.auth.reset-password');
+
 Route::get('/posts', [PostController::class, 'index'])->name('api.posts.index');
 Route::get('/categories', [CategoryController::class, 'index'])->name('api.categories.index');
 Route::get('/tags', [TagController::class, 'index'])->name('api.tags.index');

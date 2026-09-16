@@ -60,6 +60,7 @@ Mobile API for Mind Whispers. Send `Accept: application/json` on every request.
 3. After **Register**, a verification email is sent. `email_verified_at` stays `null` until the user opens the link (the same website verification link as web signup).
 4. On **Login**, send `remember: true` to keep the session for 30 days. Without it, the token expires after 24 hours. Use `expires_at` to know when to ask the user to sign in again.
 5. On **Logout**, send the Bearer token and the same `device_name` to revoke that device's session.
+6. **Forgot password** — `POST /auth/forgot-password` with `email`. Emails a 6-digit OTP (10 minutes). **Reset password** — `POST /auth/reset-password` with `email`, `otp`, `password`, and `password_confirmation`. Then call **Login**.
 
 ## Roles
 

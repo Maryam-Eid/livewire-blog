@@ -46,6 +46,11 @@ class AppServiceProvider extends ServiceProvider
         JsonResource::withoutWrapping();
 
         RateLimiter::for('api-register', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
+        RateLimiter::for('api-forgot-password', function (Request $request) {
+            $email = strtolower((string) $request->input('email'));
+
+            return Limit::perMinute(5)->by($email.'|'.$request->ip());
+        });
 
         DB::prohibitDestructiveCommands(
             app()->isProduction(),
