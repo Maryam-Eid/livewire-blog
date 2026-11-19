@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\PostView;
+use App\Actions\RecordPostView;
 use Livewire\Component;
 use App\Models\Post;
 use Livewire\Attributes\Layout;
@@ -27,17 +27,14 @@ class extends Component {
         ];
     }
 
-    protected function trackView()
+    protected function trackView(): void
     {
-        $this->post->increment('views_count');
-
-        PostView::create([
-            'post_id' => $this->post->id,
-            'user_id' => auth()->id(),
-            'ip_address' => request()->ip(),
-            'user_agent' => request()->userAgent(),
-            'viewed_at' => now(),
-        ]);
+        app(RecordPostView::class)(
+            $this->post,
+            auth()->id(),
+            request()->ip(),
+            request()->userAgent(),
+        );
     }
 };
 ?>

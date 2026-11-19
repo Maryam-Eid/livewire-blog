@@ -2,11 +2,14 @@
 
 namespace Tests;
 
+use App\Support\PostViewQueue;
+use App\Support\RedisPostViewQueue;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Support\Env;
 use Laravel\Fortify\Features;
 use Spatie\Permission\PermissionRegistrar;
+use Tests\Support\InMemoryRedisList;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -28,6 +31,8 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
 
         $this->app->make(PermissionRegistrar::class)->forgetCachedPermissions();
+
+        $this->app->singleton(PostViewQueue::class, fn (): RedisPostViewQueue => new RedisPostViewQueue(new InMemoryRedisList));
 
         config([
             'cashier.key' => null,

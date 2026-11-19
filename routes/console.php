@@ -15,3 +15,7 @@ Schedule::command('posts:publish-scheduled')
 Schedule::command('newsletters:dispatch-scheduled')
     ->everyMinute()
     ->withoutOverlapping();
+
+Schedule::command('posts:flush-views')
+    ->everyMinute()
+    ->withoutOverlapping();

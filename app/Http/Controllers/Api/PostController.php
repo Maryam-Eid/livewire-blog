@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Actions\RecordPostView;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Post\IndexPostRequest;
 use App\Http\Requests\Api\Post\ManagePostRequest;
@@ -70,13 +71,12 @@ class PostController extends Controller
         abort_unless($post->isPubliclyVisible() || $post->canBeEditedBy($request->user()), 404);
 
         if ($post->isPubliclyVisible() && ! $post->canBeEditedBy($request->user())) {
-            $post->increment('views_count');
-            $post->views()->create([
-                'user_id' => $request->user()?->id,
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-                'viewed_at' => now(),
-            ]);
+            app(RecordPostView::class)(
+                $post,
+                $request->user()?->id,
+                $request->ip(),
+                $request->userAgent(),
+            );
         }
 
         return $this->resource($post);

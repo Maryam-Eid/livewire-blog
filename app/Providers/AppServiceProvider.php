@@ -5,6 +5,8 @@ namespace App\Providers;
 use App\Models\Post;
 use App\Models\User;
 use App\Observers\PostObserver;
+use App\Support\PostViewQueue;
+use App\Support\RedisPostViewQueue;
 use Carbon\CarbonImmutable;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -23,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(PostViewQueue::class, RedisPostViewQueue::class);
     }
 
     /**

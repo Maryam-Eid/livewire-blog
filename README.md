@@ -36,6 +36,7 @@ Browse free and Premium posts, subscribe via Stripe, leave comments, and manage 
   <a href="https://laravel.com/docs/fortify"><img src="https://img.shields.io/badge/Fortify-FF2D20?logo=laravel&logoColor=white" alt="Fortify"></a>
   <a href="https://laravel.com/docs/billing"><img src="https://img.shields.io/badge/Cashier-Stripe-635BFF?logo=stripe&logoColor=white" alt="Cashier Stripe"></a>
   <a href="https://spatie.be/docs/laravel-permission"><img src="https://img.shields.io/badge/Spatie-Permission-197593?logo=php&logoColor=white" alt="Spatie Permission"></a>
+  <a href="https://redis.io/"><img src="https://img.shields.io/badge/Redis-FF4438?logo=redis&logoColor=white" alt="Redis"></a>
   <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind-v4-06B6D4?logo=tailwindcss&logoColor=white" alt="Tailwind CSS"></a>
   <a href="https://vitejs.dev/"><img src="https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white" alt="Vite"></a>
   <a href="https://flatpickr.js.org/"><img src="https://img.shields.io/badge/Flatpickr-133337?logo=javascript&logoColor=F7DF1E" alt="Flatpickr"></a>
@@ -52,6 +53,7 @@ Browse free and Premium posts, subscribe via Stripe, leave comments, and manage 
 | <img src="https://cdn.simpleicons.org/laravel/FF2D20" alt="Laravel" height="20"> | [Laravel Fortify](https://laravel.com/docs/fortify) | Login, registration, email verification, 2FA, and passkeys. |
 | <img src="https://cdn.simpleicons.org/stripe/635BFF" alt="Stripe" height="20"> | [Laravel Cashier (Stripe)](https://laravel.com/docs/billing) | Premium Checkout, Customer Portal, and webhooks. |
 | <img src="https://cdn.simpleicons.org/php/197593" alt="PHP" height="20"> | [Spatie Laravel Permission](https://spatie.be/docs/laravel-permission) | Roles and permissions that gate staff features. |
+| <img src="https://cdn.simpleicons.org/redis/FF4438" alt="Redis" height="20"> | [Redis](https://redis.io/) + [Predis](https://github.com/predis/predis) | Buffers post views until they are flushed into the database. |
 | <img src="https://cdn.simpleicons.org/tailwindcss/06B6D4" alt="Tailwind CSS" height="20"> | [Tailwind CSS v4](https://tailwindcss.com/) + [@tailwindcss/typography](https://github.com/tailwindlabs/tailwindcss-typography) | App styling, plus prose styles for post HTML. |
 | <img src="https://cdn.simpleicons.org/vite/646CFF" alt="Vite" height="20"> | [Vite](https://vitejs.dev/) + [laravel-vite-plugin](https://laravel.com/docs/vite) | Builds CSS/JS and loads Instrument Sans. |
 | <img src="https://cdn.simpleicons.org/javascript/F7DF1E" alt="JavaScript" height="20"> | [Flatpickr](https://flatpickr.js.org/) | Date/time pickers for scheduled posts and newsletters. |
@@ -169,5 +171,36 @@ Forward webhooks locally:
 ```bash
 stripe listen --forward-to localhost:8000/stripe/webhook
 ```
+
+### Redis
+
+Post views are buffered in Redis, then written to `post_views` and `views_count` by `posts:flush-views`. That command is scheduled every minute. Run it by hand anytime:
+
+```bash
+php artisan posts:flush-views
+```
+
+Start Redis with Docker Desktop already running:
+
+```bash
+docker run -d --name redis -p 6379:6379 redis:7
+```
+
+This project uses Predis, not the `phpredis` extension. In `.env`:
+
+```env
+REDIS_CLIENT=predis
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+```
+
+Open a published post, then inspect the pending list. The key prefix comes from `APP_NAME`:
+
+```bash
+docker exec -it redis redis-cli LRANGE mind-whispers-database-post-views:pending 0 -1
+```
+
+`PONG` from `docker exec redis redis-cli PING` means the server is up.
 
 
